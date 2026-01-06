@@ -1,18 +1,18 @@
 
 <style>
-    body {
+    .farmer-dashboard {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         margin: 2rem;
         background-color: #f9f9f9;
         color: #333;
     }
 
-    h1, h2 {
+    .farmer-dashboard h1, .farmer-dashboard h2 {
         text-align: center;
         color: #2c3e50;
     }
 
-    table {
+    .farmer-dashboard table {
         width: 80%;
         margin: 2rem auto;
         border-collapse: collapse;
@@ -23,35 +23,35 @@
         overflow: hidden;
     }
 
-    th, td {
+    .farmer-dashboard th, .farmer-dashboard td {
         padding: 1rem;
         text-align: center;
         border-bottom: 1px solid #ddd;
     }
 
-    th {
+    .farmer-dashboard th {
         background-color: #2ecc71;
         color: white;
         font-size: 1.1rem;
     }
 
-    tr:hover {
+    .farmer-dashboard tr:hover {
         background-color: #f1f1f1;
         transition: background-color 0.3s ease;
     }
 
-    td {
+    .farmer-dashboard td {
         font-size: 1rem;
     }
 
-    p {
+    .farmer-dashboard p {
         text-align: center;
         color: #999;
         font-style: italic;
         margin-top: 1rem;
         animation: fadeIn 0.8s ease;
     }
-   button.secondary {
+   .farmer-dashboard button.secondary {
     display: block;
     margin: 1rem auto;
     padding: 0.75rem 1.5rem;
@@ -62,8 +62,7 @@
     font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
-}
-a.secondary {
+.farmer-dashboard a.secondary {
     display: block;
     text-align: center;
     margin: 1rem auto;
@@ -74,17 +73,16 @@ a.secondary {
     font-size: 1rem;
     text-decoration: none;
     transition: background-color 0.3s ease;
-}
-a.secondary:hover {
+.farmer-dashboard a.secondary:hover {
     background-color: #2980b9;
 }
 
-button a{
+.farmer-dashboard button a{
     text-decoration: none;
     color: white;
 }
 
-button.secondary:hover {
+.farmer-dashboard button.secondary:hover {
     background-color: #2980b9;
 }
 
@@ -102,8 +100,189 @@ button.secondary:hover {
 </style>
 
 <% layout("/layout/boilerplate") %>
-<body>
+<div class="farmer-dashboard">
     <h1>It is <%=currentUser.username%>'s dashboard</h1>
+
+    <div style="max-width:900px;margin:1rem auto;padding:1rem;border:1px solid #e0e0e0;border-radius:8px;background:#ffffff;">
+      <h2>Crop Advisor</h2>
+      <p style="color:#666;font-size:0.9em;margin-bottom:1rem;">
+        <strong>Tip:</strong> Fill all fields accurately for better recommendations. Soil type and season are most important.
+      </p>
+      <form method="post" action="/advisor/recommend" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+        <div>
+          <label><strong>Soil Type *</strong> <span style="color:red;">(Required)</span></label>
+          <select name="soil_type" required>
+            <option value="">Select soil type</option>
+            <option value="loamy">Loamy</option>
+            <option value="clayey">Clayey</option>
+            <option value="sandy">Sandy</option>
+            <option value="black">Black</option>
+          </select>
+          <small style="color:#666;">Most important field for accurate recommendations</small>
+        </div>
+        <div>
+          <label><strong>Location</strong> (State, District)</label>
+          <input type="text" name="location" placeholder="e.g., Punjab, Ludhiana" value="<%= currentUser.location || '' %>" />
+          <small style="color:#666;">Helps derive climate data (rainfall, temperature)</small>
+        </div>
+        <div>
+          <label><strong>Soil pH</strong></label>
+          <input type="number" step="0.1" min="4" max="9" name="soil_ph" placeholder="6.0-7.5" />
+          <small style="color:#666;">From soil test (optional but recommended)</small>
+        </div>
+        <div>
+          <label><strong>Season *</strong></label>
+          <select name="season" required>
+            <option value="">Select season</option>
+            <option value="kharif">Kharif (Monsoon)</option>
+            <option value="rabi">Rabi (Winter)</option>
+            <option value="summer">Summer</option>
+          </select>
+          <small style="color:#666;">Must match your sowing month</small>
+        </div>
+        <div>
+          <label><strong>Irrigation Available</strong></label>
+          <select name="irrigation">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+            <option value="limited">Limited</option>
+          </select>
+        </div>
+        <div>
+          <label><strong>Land Size (acre)</strong></label>
+          <input type="number" min="0.1" step="0.1" name="land_size" value="1" />
+        </div>
+        <div>
+          <label>N (kg/ha) - Optional</label>
+          <input type="number" min="0" name="nitrogen" value="50" />
+        </div>
+        <div>
+          <label>P (kg/ha) - Optional</label>
+          <input type="number" min="0" name="phosphorus" value="30" />
+        </div>
+        <div>
+          <label>K (kg/ha) - Optional</label>
+          <input type="number" min="0" name="potassium" value="40" />
+        </div>
+        <div style="grid-column:1/-1;">
+          <button class="secondary" type="submit">Get Recommendations</button>
+        </div>
+      </form>
+      <% if (typeof recommendations !== 'undefined' && recommendations.length) { %>
+        <hr />
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <h3>Recommended Crops</h3>
+          <% if (typeof recommendationAccuracy !== 'undefined') { %>
+            <div style="padding:0.5rem 1rem;border-radius:4px;background:<%= recommendationAccuracy === 'High' ? '#d4edda' : recommendationAccuracy === 'Medium' ? '#fff3cd' : '#f8d7da' %>;color:<%= recommendationAccuracy === 'High' ? '#155724' : recommendationAccuracy === 'Medium' ? '#856404' : '#721c24' %>;">
+              <strong>Accuracy: <%= recommendationAccuracy %></strong>
+            </div>
+          <% } %>
+        </div>
+        <% if (typeof recommendationCount !== 'undefined') { %>
+          <p style="color:#666;font-size:0.9em;margin-bottom:1rem;">
+            Found <%= recommendationCount %> suitable crop(s) (score ≥ 50)
+          </p>
+        <% } %>
+        <div style="display:grid;gap:1rem;">
+          <% recommendations.forEach((rec, idx) => { %>
+            <div style="border:1px solid #ddd;border-radius:8px;padding:1rem;background:#f9f9f9;">
+              <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.5rem;">
+                <div>
+                  <h4 style="margin:0;text-transform:capitalize;"><%= rec.crop %></h4>
+                  <div style="margin-top:0.5rem;">
+                    <strong>Match Score: <%= Math.round(rec.score) %>/100</strong>
+                    <% if (rec.score_breakdown) { %>
+                      <div style="font-size:0.85em;color:#666;margin-top:0.25rem;">
+                        Soil: <%= rec.score_breakdown.soil || 0 %> | 
+                        Climate: <%= rec.score_breakdown.climate_water || 0 %> | 
+                        Season: <%= rec.score_breakdown.season || 0 %> | 
+                        Economics: <%= rec.score_breakdown.economics || 0 %>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:0.9em;color:#666;">Expected Yield</div>
+                  <div style="font-weight:bold;"><%= rec.expectedYield %></div>
+                </div>
+              </div>
+              <details style="margin-top:0.5rem;">
+                <summary style="cursor:pointer;color:#007bff;font-weight:bold;">View Details (Process, Fertilizers, Why Recommended)</summary>
+                <div style="padding:0.75rem 0;border-top:1px solid #ddd;margin-top:0.5rem;">
+                  <% if (rec.why && rec.why.length > 0) { %>
+                    <div style="margin-bottom:1rem;">
+                      <strong>Why Recommended:</strong>
+                      <ul style="margin:0.5rem 0;padding-left:1.5rem;">
+                        <% rec.why.slice(0, 5).forEach(reason => { %>
+                          <li><%= reason %></li>
+                        <% }) %>
+                      </ul>
+                    </div>
+                  <% } %>
+                  <div style="margin-bottom:1rem;">
+                    <strong>Growing Process:</strong>
+                    <ol style="margin:0.5rem 0;padding-left:1.5rem;">
+                      <% (rec.process || []).forEach(step => { %>
+                        <li><%= step %></li>
+                      <% }) %>
+                    </ol>
+                  </div>
+                  <div>
+                    <strong>Fertilizer Recommendations:</strong>
+                    <ul style="margin:0.5rem 0;padding-left:1.5rem;">
+                      <% (rec.fertilizers || []).forEach(f => { %>
+                        <li><strong><%= f.name %></strong> — <%= f.quantity %></li>
+                      <% }) %>
+                    </ul>
+                  </div>
+                </div>
+              </details>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+
+    <% if (suggestedCrop) { %>
+      <div style="max-width: 800px; margin: 1rem auto; padding: 1rem; border: 1px solid #e0e0e0; border-radius: 8px; background: #f6fff6;">
+        <h2 style="margin-top:0;">Suggested Crop</h2>
+        <p>Based on recent prices, consider planting <strong><%= suggestedCrop %></strong>. Average price last 30 days: ₹<%= Math.round(suggestedAvg) %>/kg.</p>
+        <% if (fertilizerTips && fertilizerTips.length) { %>
+            <ul>
+                <% fertilizerTips.forEach(t => { %>
+                    <li><%= t %></li>
+                <% }) %>
+            </ul>
+        <% } %>
+
+        <% if (growSteps && growSteps.length) { %>
+          <h3>How to grow <%= suggestedCrop %></h3>
+          <ol>
+            <% growSteps.forEach(step => { %>
+              <li><%= step %></li>
+            <% }) %>
+          </ol>
+        <% } %>
+
+        <% if (fertilizerPlan && fertilizerPlan.length) { %>
+          <h3>Fertilizer plan</h3>
+          <table border="1" style="width:100%; border-collapse: collapse;">
+            <tr>
+              <th>Nutrient</th>
+              <th>Amount (kg/ha)</th>
+              <th>Notes</th>
+            </tr>
+            <% fertilizerPlan.forEach(item => { %>
+              <tr>
+                <td><%= item.nutrient %></td>
+                <td><%= item.amountKgPerHa %></td>
+                <td><%= item.note %></td>
+              </tr>
+            <% }) %>
+          </table>
+        <% } %>
+      </div>
+    <% } %>
 
     <!-- Available Inventory -->
     <h2>Available Inventory</h2>
@@ -201,4 +380,4 @@ button.secondary:hover {
             </tr>
         </table>
     <% } %>
-</body>
+</div>

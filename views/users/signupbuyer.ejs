@@ -1,96 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Signup - Farmer Portal</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Signup - Buyer Portal</title>
+
   <style>
     * {
       box-sizing: border-box;
       font-family: 'Segoe UI', sans-serif;
     }
-    body {
-      background: linear-gradient(135deg, #f0f0f0, #dcdcdc);
+
+    :root{
+      --card-bg: #ffffff;
+      --page-grad-from: #e0ffe0;
+      --page-grad-to: #c8e6c9;
+      --accent: #43a047;
+      --accent-600: #388e3c;
+      --muted: #666;
+      --input-bg: #f7f7f7;
+      --error-bg: #ffebee;
+      --error-border: #e57373;
+      --radius: 12px;
+      --shadow: 0 12px 28px rgba(0,0,0,0.08);
+    }
+
+    html, body {
+      height: 100%;
       margin: 0;
+    }
+
+    body {
       display: flex;
-      align-items: center;
-      justify-content: center;
       height: 100vh;
-      overflow: hidden;
+      align-items: center;     /* vertical center */
+      justify-content: center; /* horizontal center */
+      padding: 20px;
+      background: linear-gradient(135deg, var(--page-grad-from), var(--page-grad-to));
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
     }
-    .container {
-      background: #ffffff;
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      animation: slideIn 1s ease-out;
-      width: 320px;
+
+    .card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px;
       text-align: center;
+      animation: fadeIn 480ms ease-out;
     }
+
+    @keyframes fadeIn {
+      from { transform: translateY(18px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+
     h2 {
-      margin-bottom: 20px;
-      color: #333;
+      margin: 0 0 14px 0;
+      color: var(--accent-600);
+      font-size: 22px;
+      font-weight: 600;
     }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 18px;
+    }
+
+    .error-box {
+      background: var(--error-bg);
+      border: 1px solid var(--error-border);
+      color: #c62828;
+      padding: 10px 12px;
       border-radius: 8px;
-      background-color: #f9f9f9;
-      transition: 0.3s;
+      margin-bottom: 14px;
+      text-align: left;
+      font-size: 14px;
     }
+
+    form { display: grid; gap: 10px; }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid #d6dbe8;
+      background: var(--input-bg);
+      font-size: 15px;
+      transition: box-shadow .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    input::placeholder { color: #9aa6c0; }
+
     input:focus {
-      border-color: #999;
       outline: none;
-      background-color: #fff;
+      border-color: var(--accent-600);
+      box-shadow: 0 8px 22px rgba(56,142,60,0.08);
+      background: #fff;
     }
-    button {
+
+    .submit-btn {
       width: 100%;
       padding: 12px;
-      background: #8bc34a;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
       font-size: 16px;
-      transition: background 0.3s ease;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(180deg, var(--accent), var(--accent-600));
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(56,142,60,0.12);
+      transition: transform .12s ease, box-shadow .12s ease;
     }
-    button:hover {
-      background: #7cb342;
+
+    .submit-btn:hover { box-shadow: 0 12px 30px rgba(56,142,60,0.16); transform: translateY(-1px); }
+    .submit-btn:active { transform: translateY(0); }
+
+    .note {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
     }
-    @keyframes slideIn {
-      from {
-        transform: translateY(30px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
+
+    @media (max-width:420px) {
+      .card { padding: 20px; }
+      h2 { font-size: 20px; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <% if (error && error.length > 0) { %>
-        <div style="color: red; margin-bottom: 10px;">
-          <% error.forEach(err => { %>
-            <div><%= err %></div>
-          <% }) %>
-        </div>
-      <% } %>
-      
-    <h2>Buyer Signup</h2>
-    <form method="post" action="/users/signupbuyer">
-      <input type="text" placeholder="Full Name" name="name" required />
-      <input type="email" placeholder="Email" name="email" required />
-      <input type="text" placeholder="Username" name="username" required />
-      <input type="password" placeholder="Password" name="password" required />
-      <input type="password" placeholder="Enter Location of business" name="location" required />
+  <main class="card" role="main" aria-labelledby="signupTitle">
+    <h2 id="signupTitle">Buyer Signup</h2>
+    <div class="subtitle">Create your buyer account to connect with local farmers</div>
 
-      <button type="submit">Signup</button>
+    <!-- EJS server-side errors -->
+    <% if (error && error.length > 0) { %>
+      <div class="error-box" role="alert" aria-live="assertive">
+        <% error.forEach(err => { %>
+          <div><%= err %></div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <form method="post" action="/users/signupbuyer" novalidate>
+      <input name="name" type="text" placeholder="Full Name" required />
+      <input name="email" type="email" placeholder="Email address" required />
+      <input name="username" type="text" placeholder="Username" required />
+      <input name="password" type="password" placeholder="Password" required />
+      <input name="location" type="text" placeholder="Enter location of business" required />
+      <button class="submit-btn" type="submit">Sign up</button>
     </form>
-  </div>
+
+    <div class="note">Already have an account? <a href="/users/loginbuyer">Login</a></div>
+  </main>
 </body>
 </html>

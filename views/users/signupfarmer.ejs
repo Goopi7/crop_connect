@@ -4,92 +4,117 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Signup - Farmer Portal</title>
+
   <style>
     * {
       box-sizing: border-box;
       font-family: 'Segoe UI', sans-serif;
     }
+
     body {
-      background: linear-gradient(135deg, #f0f0f0, #dcdcdc);
+      background: linear-gradient(135deg, #e0ffe0, #c8e6c9);
       margin: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      overflow: hidden;
+      padding: 20px;
     }
+
     .container {
       background: #ffffff;
-      padding: 40px;
+      padding: 35px 30px;
       border-radius: 15px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      animation: slideIn 1s ease-out;
-      width: 320px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+      animation: fadeIn 0.7s ease-out;
       text-align: center;
     }
+
     h2 {
-      margin-bottom: 20px;
-      color: #333;
+      margin-bottom: 18px;
+      color: #2e7d32;
+      font-weight: 600;
     }
+
     input {
       width: 100%;
       padding: 12px;
       margin: 10px 0;
-      border: 1px solid #ccc;
+      border: 1px solid #bdbdbd;
       border-radius: 8px;
-      background-color: #f9f9f9;
-      transition: 0.3s;
+      background-color: #f7f7f7;
+      transition: 0.25s;
+      font-size: 15px;
     }
+
     input:focus {
-      border-color: #999;
-      outline: none;
+      border-color: #81c784;
       background-color: #fff;
+      box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+      outline: none;
     }
+
     button {
       width: 100%;
       padding: 12px;
-      background: #8bc34a;
+      background: #43a047;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 16px;
-      transition: background 0.3s ease;
+      font-size: 17px;
+      margin-top: 5px;
+      transition: 0.3s ease-in-out;
     }
+
     button:hover {
-      background: #7cb342;
+      background: #388e3c;
+      transform: translateY(-2px);
     }
-    @keyframes slideIn {
-      from {
-        transform: translateY(30px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
+
+    .error-box {
+      background: #ffebee;
+      padding: 10px;
+      border: 1px solid #e57373;
+      color: #c62828;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
+
 <body>
   <div class="container">
+
+    <!-- Error Messages -->
     <% if (error && error.length > 0) { %>
-        <div style="color: red; margin-bottom: 10px;">
-          <% error.forEach(err => { %>
-            <div><%= err %></div>
-          <% }) %>
-        </div>
-      <% } %>
-      
+      <div class="error-box">
+        <% error.forEach(err => { %>
+          <div><%= err %></div>
+        <% }) %>
+      </div>
+    <% } %>
+
     <h2>Farmer Signup</h2>
+
     <form method="post" action="/users/signupfarmer">
       <input type="text" placeholder="Full Name" name="name" required />
       <input type="email" placeholder="Email" name="email" required />
       <input type="text" placeholder="Username" name="username" required />
       <input type="password" placeholder="Password" name="password" required />
-      <input type="text" placeholder="location" name="location" required />
+      <input type="text" placeholder="Location" name="location" required />
       <button type="submit">Signup</button>
     </form>
+
   </div>
 </body>
 </html>

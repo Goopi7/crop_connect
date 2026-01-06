@@ -1,0 +1,671 @@
+<%- layout('layout/boilerplate') %>
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Crop Tools</span>
+                </h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/crops/recommend">
+                            <i class="bi bi-lightbulb"></i> Crop Recommendation
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/crops">
+                            <i class="bi bi-book"></i> Crop Knowledge Base
+                        </a>
+                    </li>
+                </ul>
+                
+                <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Categories</span>
+                </h5>
+                <ul class="nav flex-column mb-2" id="categoryFilters">
+                    <li class="nav-item">
+                        <a class="nav-link category-filter active" href="#" data-category="all">
+                            <i class="bi bi-grid"></i> All Crops
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link category-filter" href="#" data-category="cereals">
+                            <i class="bi bi-circle"></i> Cereals
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link category-filter" href="#" data-category="pulses">
+                            <i class="bi bi-circle"></i> Pulses
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link category-filter" href="#" data-category="oilseeds">
+                            <i class="bi bi-circle"></i> Oilseeds
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link category-filter" href="#" data-category="vegetables">
+                            <i class="bi bi-circle"></i> Vegetables
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link category-filter" href="#" data-category="fruits">
+                            <i class="bi bi-circle"></i> Fruits
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link category-filter" href="#" data-category="cash_crops">
+                            <i class="bi bi-circle"></i> Cash Crops
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link category-filter" href="#" data-category="spices">
+                            <i class="bi bi-circle"></i> Spices
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link category-filter" href="#" data-category="fodder">
+                            <i class="bi bi-circle"></i> Fodder
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Crop Knowledge Base</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="input-group me-2">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search crops...">
+                        <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Filter Options</h5>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="climateZoneFilter" class="form-label">Climate Zone</label>
+                                    <select class="form-select" id="climateZoneFilter">
+                                        <option value="">All Zones</option>
+                                        <option value="tropical">Tropical</option>
+                                        <option value="subtropical">Subtropical</option>
+                                        <option value="temperate">Temperate</option>
+                                        <option value="arid">Arid</option>
+                                        <option value="semi_arid">Semi-Arid</option>
+                                        <option value="coastal">Coastal</option>
+                                        <option value="highland">Highland</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="seasonFilter" class="form-label">Growing Season</label>
+                                    <select class="form-select" id="seasonFilter">
+                                        <option value="">All Seasons</option>
+                                        <option value="kharif">Kharif (Monsoon)</option>
+                                        <option value="rabi">Rabi (Winter)</option>
+                                        <option value="zaid">Zaid (Summer)</option>
+                                        <option value="perennial">Perennial</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="waterNeedFilter" class="form-label">Water Requirement</label>
+                                    <select class="form-select" id="waterNeedFilter">
+                                        <option value="">All Types</option>
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="durationFilter" class="form-label">Crop Duration</label>
+                                    <select class="form-select" id="durationFilter">
+                                        <option value="">All Durations</option>
+                                        <option value="short">Short (< 90 days)</option>
+                                        <option value="medium">Medium (90-120 days)</option>
+                                        <option value="long">Long (> 120 days)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button id="applyFilters" class="btn btn-primary">Apply Filters</button>
+                                <button id="resetFilters" class="btn btn-outline-secondary ms-2">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loadingIndicator" class="text-center my-5 d-none">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Loading crop database...</p>
+            </div>
+
+            <div id="noCropsFound" class="alert alert-info d-none" role="alert">
+                <i class="bi bi-info-circle me-2"></i> No crops found matching your criteria. Try adjusting your filters.
+            </div>
+
+            <div class="row row-cols-1 row-cols-md-3 g-4 mb-4" id="cropGrid">
+                <!-- Crop cards will be dynamically inserted here -->
+            </div>
+
+            <div class="modal fade" id="cropDetailModal" tabindex="-1" aria-labelledby="cropDetailModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="cropDetailModalLabel">Crop Details</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" id="cropDetailContent">
+                            <!-- Crop details will be dynamically inserted here -->
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" id="getRecommendationBtn">Get Recommendation</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cropGrid = document.getElementById('cropGrid');
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const categoryFilters = document.querySelectorAll('.category-filter');
+        const applyFiltersBtn = document.getElementById('applyFilters');
+        const resetFiltersBtn = document.getElementById('resetFilters');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const noCropsFound = document.getElementById('noCropsFound');
+        const cropDetailModal = new bootstrap.Modal(document.getElementById('cropDetailModal'));
+        const cropDetailContent = document.getElementById('cropDetailContent');
+        const getRecommendationBtn = document.getElementById('getRecommendationBtn');
+        
+        let allCrops = [];
+        let currentCropId = null;
+        
+        // Fetch all crops on page load
+        fetchCrops();
+        
+        // Function to fetch crops from API
+        async function fetchCrops(filters = {}) {
+            try {
+                loadingIndicator.classList.remove('d-none');
+                cropGrid.innerHTML = '';
+                noCropsFound.classList.add('d-none');
+                
+                // Construct query string from filters
+                const queryParams = new URLSearchParams();
+                Object.entries(filters).forEach(([key, value]) => {
+                    if (value) queryParams.append(key, value);
+                });
+                
+                const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+                const response = await fetch(`/api/crops${queryString}`);
+                const data = await response.json();
+                
+                loadingIndicator.classList.add('d-none');
+                
+                if (data.success && data.crops && data.crops.length > 0) {
+                    allCrops = data.crops;
+                    renderCrops(allCrops);
+                } else {
+                    noCropsFound.classList.remove('d-none');
+                }
+            } catch (error) {
+                console.error('Error fetching crops:', error);
+                loadingIndicator.classList.add('d-none');
+                noCropsFound.classList.remove('d-none');
+            }
+        }
+        
+        // Function to render crops in the grid
+        function renderCrops(crops) {
+            cropGrid.innerHTML = '';
+            
+            if (crops.length === 0) {
+                noCropsFound.classList.remove('d-none');
+                return;
+            }
+            
+            noCropsFound.classList.add('d-none');
+            
+            crops.forEach(crop => {
+                const card = document.createElement('div');
+                card.className = 'col';
+                card.innerHTML = `
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h5 class="card-title mb-0">${crop.name}</h5>
+                            <div class="text-muted small">${crop.scientific_name || ''}</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                ${crop.categories.map(cat => `<span class="badge bg-info text-dark me-1">${cat.replace('_', ' ')}</span>`).join('')}
+                            </div>
+                            <p class="card-text">${crop.description.substring(0, 100)}${crop.description.length > 100 ? '...' : ''}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-primary me-1">${crop.climate_zones[0]}</span>
+                                    <span class="badge bg-success me-1">${crop.water_need}</span>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary view-details" data-id="${crop._id}">View Details</button>
+                            </div>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <small>Days to maturity: ${crop.days_to_maturity.min}-${crop.days_to_maturity.max}</small>
+                        </div>
+                    </div>
+                `;
+                cropGrid.appendChild(card);
+            });
+            
+            // Add event listeners to view details buttons
+            document.querySelectorAll('.view-details').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const cropId = this.getAttribute('data-id');
+                    currentCropId = cropId;
+                    showCropDetails(cropId);
+                });
+            });
+        }
+        
+        // Function to show crop details in modal
+        async function showCropDetails(cropId) {
+            try {
+                cropDetailContent.innerHTML = `
+                    <div class="text-center my-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading crop details...</p>
+                    </div>
+                `;
+                
+                cropDetailModal.show();
+                
+                const response = await fetch(`/api/crops/${cropId}`);
+                const data = await response.json();
+                
+                if (data.success && data.crop) {
+                    const crop = data.crop;
+                    
+                    cropDetailContent.innerHTML = `
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <h3>${crop.name} <small class="text-muted">${crop.scientific_name || ''}</small></h3>
+                                <div class="mb-2">
+                                    ${crop.categories.map(cat => `<span class="badge bg-info text-dark me-1">${cat.replace('_', ' ')}</span>`).join('')}
+                                </div>
+                                <p>${crop.description}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Growing Conditions</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Climate Zones
+                                                <div>
+                                                    ${crop.climate_zones.map(zone => `<span class="badge bg-primary me-1">${zone}</span>`).join('')}
+                                                </div>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Soil Types
+                                                <div>
+                                                    ${crop.soil_types.map(soil => `<span class="badge bg-secondary me-1">${soil}</span>`).join('')}
+                                                </div>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                pH Range
+                                                <span>${crop.ph_range.min} - ${crop.ph_range.max}</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Water Need
+                                                <span class="badge bg-${crop.water_need === 'low' ? 'success' : crop.water_need === 'medium' ? 'warning' : 'danger'}">${crop.water_need}</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Growing Season
+                                                <div>
+                                                    ${crop.growing_seasons.map(season => `<span class="badge bg-info text-dark me-1">${season}</span>`).join('')}
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Crop Details</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Days to Maturity
+                                                <span>${crop.days_to_maturity.min} - ${crop.days_to_maturity.max} days</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Expected Yield
+                                                <span>${crop.expected_yield.min} - ${crop.expected_yield.max} ${crop.expected_yield.unit}</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Seed Rate
+                                                <span>${crop.planting_details.seed_rate.value} ${crop.planting_details.seed_rate.unit}</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Spacing
+                                                <span>R×R: ${crop.planting_details.spacing.row_to_row.value}${crop.planting_details.spacing.row_to_row.unit}, P×P: ${crop.planting_details.spacing.plant_to_plant.value}${crop.planting_details.spacing.plant_to_plant.unit}</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Planting Depth
+                                                <span>${crop.planting_details.depth.value} ${crop.planting_details.depth.unit}</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Growth Stages</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Stage</th>
+                                                        <th>Days</th>
+                                                        <th>Description</th>
+                                                        <th>Key Activities</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    ${crop.growth_stages.map(stage => `
+                                                        <tr>
+                                                            <td>${stage.name}</td>
+                                                            <td>${stage.days_from_sowing.min} - ${stage.days_from_sowing.max}</td>
+                                                            <td>${stage.description}</td>
+                                                            <td>${stage.key_activities.join(', ')}</td>
+                                                        </tr>
+                                                    `).join('')}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Fertilizer Schedule</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Stage</th>
+                                                        <th>N (kg/ha)</th>
+                                                        <th>P (kg/ha)</th>
+                                                        <th>K (kg/ha)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    ${crop.fertilizer_schedule.map(fert => `
+                                                        <tr>
+                                                            <td>${fert.stage}</td>
+                                                            <td>${fert.nitrogen}</td>
+                                                            <td>${fert.phosphorus}</td>
+                                                            <td>${fert.potassium}</td>
+                                                        </tr>
+                                                    `).join('')}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Common Pests & Diseases</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="accordion" id="pestDiseaseAccordion">
+                                            ${crop.pest_disease_profile.map((item, index) => `
+                                                <div class="accordion-item">
+                                                    <h2 class="accordion-header" id="heading${index}">
+                                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}" aria-expanded="false" aria-controls="collapse${index}">
+                                                            ${item.name} (${item.type})
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapse${index}" class="accordion-collapse collapse" aria-labelledby="heading${index}" data-bs-parent="#pestDiseaseAccordion">
+                                                        <div class="accordion-body">
+                                                            <p><strong>Symptoms:</strong> ${item.symptoms.join(', ')}</p>
+                                                            <p><strong>Control Measures:</strong></p>
+                                                            <ul>
+                                                                ${item.control_measures.map(measure => `<li>${measure}</li>`).join('')}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Regional Notes</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-group list-group-flush">
+                                            ${crop.region_specific_notes.map(note => `
+                                                <li class="list-group-item">
+                                                    <strong>${note.region}:</strong> ${note.note}
+                                                </li>
+                                            `).join('')}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    cropDetailContent.innerHTML = `
+                        <div class="alert alert-danger" role="alert">
+                            Failed to load crop details. Please try again.
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error fetching crop details:', error);
+                cropDetailContent.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        An error occurred while loading crop details. Please try again.
+                    </div>
+                `;
+            }
+        }
+        
+        // Search functionality
+        searchButton.addEventListener('click', function() {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            if (searchTerm === '') {
+                renderCrops(allCrops);
+                return;
+            }
+            
+            const filteredCrops = allCrops.filter(crop => 
+                crop.name.toLowerCase().includes(searchTerm) || 
+                (crop.scientific_name && crop.scientific_name.toLowerCase().includes(searchTerm)) ||
+                crop.categories.some(cat => cat.toLowerCase().includes(searchTerm))
+            );
+            
+            renderCrops(filteredCrops);
+        });
+        
+        searchInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                searchButton.click();
+            }
+        });
+        
+        // Category filter functionality
+        categoryFilters.forEach(filter => {
+            filter.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Update active state
+                categoryFilters.forEach(f => f.classList.remove('active'));
+                this.classList.add('active');
+                
+                const category = this.getAttribute('data-category');
+                
+                if (category === 'all') {
+                    renderCrops(allCrops);
+                    return;
+                }
+                
+                const filteredCrops = allCrops.filter(crop => 
+                    crop.categories.some(cat => cat.toLowerCase() === category.toLowerCase())
+                );
+                
+                renderCrops(filteredCrops);
+            });
+        });
+        
+        // Apply filters button
+        applyFiltersBtn.addEventListener('click', function() {
+            const climateZone = document.getElementById('climateZoneFilter').value;
+            const season = document.getElementById('seasonFilter').value;
+            const waterNeed = document.getElementById('waterNeedFilter').value;
+            const duration = document.getElementById('durationFilter').value;
+            
+            let filteredCrops = [...allCrops];
+            
+            if (climateZone) {
+                filteredCrops = filteredCrops.filter(crop => 
+                    crop.climate_zones.some(zone => zone.toLowerCase() === climateZone.toLowerCase())
+                );
+            }
+            
+            if (season) {
+                filteredCrops = filteredCrops.filter(crop => 
+                    crop.growing_seasons.some(s => s.toLowerCase() === season.toLowerCase())
+                );
+            }
+            
+            if (waterNeed) {
+                filteredCrops = filteredCrops.filter(crop => 
+                    crop.water_need.toLowerCase() === waterNeed.toLowerCase()
+                );
+            }
+            
+            if (duration) {
+                filteredCrops = filteredCrops.filter(crop => {
+                    const avgDuration = (crop.days_to_maturity.min + crop.days_to_maturity.max) / 2;
+                    if (duration === 'short') return avgDuration < 90;
+                    if (duration === 'medium') return avgDuration >= 90 && avgDuration <= 120;
+                    if (duration === 'long') return avgDuration > 120;
+                    return true;
+                });
+            }
+            
+            renderCrops(filteredCrops);
+        });
+        
+        // Reset filters button
+        resetFiltersBtn.addEventListener('click', function() {
+            document.getElementById('climateZoneFilter').value = '';
+            document.getElementById('seasonFilter').value = '';
+            document.getElementById('waterNeedFilter').value = '';
+            document.getElementById('durationFilter').value = '';
+            searchInput.value = '';
+            
+            categoryFilters.forEach(f => f.classList.remove('active'));
+            document.querySelector('[data-category="all"]').classList.add('active');
+            
+            renderCrops(allCrops);
+        });
+        
+        // Get recommendation button
+        getRecommendationBtn.addEventListener('click', function() {
+            if (currentCropId) {
+                window.location.href = `/crops/recommend?crop_id=${currentCropId}`;
+            }
+        });
+    });
+</script>
+
+<style>
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 48px 0 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    }
+    
+    .sidebar-heading {
+        font-size: .75rem;
+        text-transform: uppercase;
+    }
+    
+    .nav-link {
+        font-weight: 500;
+        color: #333;
+    }
+    
+    .nav-link.active {
+        color: #2470dc;
+    }
+    
+    @media (max-width: 767.98px) {
+        .sidebar {
+            position: static;
+            padding-top: 0;
+        }
+    }
+    
+    .card-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>

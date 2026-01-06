@@ -17,3 +17,33 @@ module.exports.isLoggedIn=(req, res, next) =>{
     }
     next();
 }
+
+module.exports.isAdmin=(req, res, next)=>{
+    if (req.isAuthenticated && req.isAuthenticated() && req.user && req.user.constructor && req.user.constructor.modelName === "AdminLogin") {
+        return next();
+    }
+    const wantsJson = req.xhr || (req.headers['x-requested-with'] === 'XMLHttpRequest') || (req.headers.accept && req.headers.accept.includes('application/json'));
+    if (wantsJson) {
+        return res.status(401).json({ error: "Admin access required." });
+    }
+    req.flash("error", "Admin access required.");
+    res.redirect("/");
+}
+
+module.exports.isBuyer=(req, res, next)=>{
+    if (req.user && req.user.constructor.modelName === "BuyerLogin") return next();
+    req.flash("error", "Buyer access required.");
+    res.redirect("/");
+}
+
+module.exports.hasAdminPermission=(permission) => {
+    return (req, res, next) => {
+        if (req.user && req.user.constructor.modelName === "AdminLogin") {
+            if (req.user.hasPermission(permission) || req.user.role === 'superadmin') {
+                return next();
+            }
+        }
+        req.flash("error", `Permission '${permission}' required.`);
+        res.redirect("/");
+    };
+}

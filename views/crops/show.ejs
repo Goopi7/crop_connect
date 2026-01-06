@@ -1,0 +1,411 @@
+<%- layout('layout/boilerplate') %>
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Crop Tools</span>
+                </h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/crops/recommend">
+                            <i class="bi bi-lightbulb"></i> Crop Recommendation
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/crops">
+                            <i class="bi bi-book"></i> Crop Knowledge Base
+                        </a>
+                    </li>
+                </ul>
+                
+                <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Quick Actions</span>
+                </h5>
+                <ul class="nav flex-column mb-2">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="printCropInfo">
+                            <i class="bi bi-printer"></i> Print Crop Info
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="downloadPDF">
+                            <i class="bi bi-file-earmark-pdf"></i> Download as PDF
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#procedure">
+                            <i class="bi bi-list-check"></i> View Procedure
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/crops/recommend?crop_id=<%= crop._id %>">
+                            <i class="bi bi-lightbulb"></i> Get Recommendation
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/crops">Crop Knowledge Base</a></li>
+                            <li class="breadcrumb-item active" aria-current="page"><%= crop.name %></li>
+                        </ol>
+                    </nav>
+                    <h1 class="h2"><%= crop.name %> <small class="text-muted"><%= crop.scientific_name %></small></h1>
+                    <div class="mb-2">
+                        <% crop.categories.forEach(function(category) { %>
+                            <span class="badge bg-info text-dark me-1"><%= category.replace('_', ' ') %></span>
+                        <% }); %>
+                    </div>
+                </div>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="/crops/recommend?crop_id=<%= crop._id %>" class="btn btn-primary">
+                        <i class="bi bi-lightbulb"></i> Get Recommendation
+                    </a>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="lead"><%= crop.description %></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Growing Conditions</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Climate Zones
+                                    <div>
+                                        <% crop.climate_zones.forEach(function(zone) { %>
+                                            <span class="badge bg-primary me-1"><%= zone %></span>
+                                        <% }); %>
+                                    </div>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Soil Types
+                                    <div>
+                                        <% crop.soil_types.forEach(function(soil) { %>
+                                            <span class="badge bg-secondary me-1"><%= soil %></span>
+                                        <% }); %>
+                                    </div>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    pH Range
+                                    <span><%= crop.ph_range.min %> - <%= crop.ph_range.max %></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Water Need
+                                    <span class="badge bg-<%= crop.water_need === 'low' ? 'success' : crop.water_need === 'medium' ? 'warning' : 'danger' %>"><%= crop.water_need %></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Growing Season
+                                    <div>
+                                        <% crop.growing_seasons.forEach(function(season) { %>
+                                            <span class="badge bg-info text-dark me-1"><%= season %></span>
+                                        <% }); %>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Crop Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Days to Maturity
+                                    <span><%= crop.days_to_maturity.min %> - <%= crop.days_to_maturity.max %> days</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Expected Yield
+                                    <span><%= crop.expected_yield.min %> - <%= crop.expected_yield.max %> <%= crop.expected_yield.unit %></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Seed Rate
+                                    <span><%= crop.planting_details.seed_rate.value %> <%= crop.planting_details.seed_rate.unit %></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Spacing
+                                    <span>R×R: <%= crop.planting_details.spacing.row_to_row.value %><%= crop.planting_details.spacing.row_to_row.unit %>, P×P: <%= crop.planting_details.spacing.plant_to_plant.value %><%= crop.planting_details.spacing.plant_to_plant.unit %></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Planting Depth
+                                    <span><%= crop.planting_details.depth.value %> <%= crop.planting_details.depth.unit %></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Growth Stages</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Stage</th>
+                                            <th>Days</th>
+                                            <th>Description</th>
+                                            <th>Key Activities</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% crop.growth_stages.forEach(function(stage) { %>
+                                            <tr>
+                                                <td><%= stage.name %></td>
+                                                <td><%= stage.days_from_sowing.min %> - <%= stage.days_from_sowing.max %></td>
+                                                <td><%= stage.description %></td>
+                                                <td><%= stage.key_activities.join(', ') %></td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Fertilizer Schedule</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Stage</th>
+                                            <th>N (kg/ha)</th>
+                                            <th>P (kg/ha)</th>
+                                            <th>K (kg/ha)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% crop.fertilizer_schedule.forEach(function(fert) { %>
+                                            <tr>
+                                                <td><%= fert.stage %></td>
+                                                <td><%= fert.nitrogen %></td>
+                                                <td><%= fert.phosphorus %></td>
+                                                <td><%= fert.potassium %></td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Common Pests & Diseases</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="accordion" id="pestDiseaseAccordion">
+                                <% crop.pest_disease_profile.forEach(function(item, index) { %>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="heading<%= index %>">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<%= index %>" aria-expanded="false" aria-controls="collapse<%= index %>">
+                                                <%= item.name %> (<%= item.type %>)
+                                            </button>
+                                        </h2>
+                                        <div id="collapse<%= index %>" class="accordion-collapse collapse" aria-labelledby="heading<%= index %>" data-bs-parent="#pestDiseaseAccordion">
+                                            <div class="accordion-body">
+                                                <p><strong>Symptoms:</strong> <%= item.symptoms.join(', ') %></p>
+                                                <p><strong>Control Measures:</strong></p>
+                                                <ul>
+                                                    <% item.control_measures.forEach(function(measure) { %>
+                                                        <li><%= measure %></li>
+                                                    <% }); %>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card" id="procedure">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Complete Growing Procedure</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="timeline">
+                                <% crop.procedure.forEach(function(step, index) { %>
+                                    <div class="timeline-item">
+                                        <div class="timeline-marker bg-primary"><%= index + 1 %></div>
+                                        <div class="timeline-content">
+                                            <h5><%= step.step %></h5>
+                                            <p><%= step.description %></p>
+                                            <% if (step.tips && step.tips.length > 0) { %>
+                                                <div class="alert alert-info">
+                                                    <strong>Tips:</strong>
+                                                    <ul class="mb-0">
+                                                        <% step.tips.forEach(function(tip) { %>
+                                                            <li><%= tip %></li>
+                                                        <% }); %>
+                                                    </ul>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Regional Notes</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <% crop.region_specific_notes.forEach(function(note) { %>
+                                    <li class="list-group-item">
+                                        <strong><%= note.region %>:</strong> <%= note.note %>
+                                    </li>
+                                <% }); %>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const printCropInfoBtn = document.getElementById('printCropInfo');
+        const downloadPDFBtn = document.getElementById('downloadPDF');
+        
+        // Print functionality
+        printCropInfoBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.print();
+        });
+        
+        // Download as PDF
+        downloadPDFBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = `/api/crops/<%= crop._id %>/pdf`;
+        });
+    });
+</script>
+
+<style>
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 48px 0 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    }
+    
+    .sidebar-heading {
+        font-size: .75rem;
+        text-transform: uppercase;
+    }
+    
+    .nav-link {
+        font-weight: 500;
+        color: #333;
+    }
+    
+    .nav-link.active {
+        color: #2470dc;
+    }
+    
+    .timeline {
+        position: relative;
+        padding: 20px 0;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 30px;
+        padding-left: 40px;
+    }
+    
+    .timeline-marker {
+        position: absolute;
+        left: 0;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 30px;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .timeline-content {
+        padding: 0 20px;
+        border-left: 2px solid #2470dc;
+    }
+    
+    @media (max-width: 767.98px) {
+        .sidebar {
+            position: static;
+            padding-top: 0;
+        }
+    }
+    
+    @media print {
+        .sidebar, .btn-toolbar, .breadcrumb {
+            display: none !important;
+        }
+        
+        .ms-sm-auto {
+            margin-left: 0 !important;
+        }
+        
+        .card {
+            break-inside: avoid;
+        }
+    }
+</style>

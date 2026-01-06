@@ -1,0 +1,693 @@
+<!-- NOTE: Do NOT include the layout here. The route should set { layout: 'layout/boilerplate' } -->
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <aside class="col-md-3 col-lg-2 d-none d-md-block bg-light sidebar border-end" aria-label="Admin navigation">
+      <div class="position-sticky pt-3">
+        <div class="text-center mb-4">
+          <h5 class="mb-1"><i class="fas fa-user-shield text-primary"></i> Admin Panel</h5>
+          <p class="text-muted small mb-1">Welcome, <%= adminName %></p>
+          <span class="badge bg-secondary"><%= adminRole %></span>
+        </div>
+
+        <nav>
+          <ul class="nav flex-column" id="admin-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/dashboard" data-path="/admin/dashboard">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/users" data-path="/admin/users">
+                <i class="fas fa-users"></i> Manage Users
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/requests" data-path="/admin/requests">
+                <i class="fas fa-clipboard-list"></i> View Requests
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/analytics" data-path="/admin/analytics">
+                <i class="fas fa-chart-bar"></i> Analytics
+              </a>
+            </li>
+            <li class="nav-item mt-3">
+              <a class="nav-link text-danger" href="/logoutadmin">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="col-12 col-md-9 ms-sm-auto col-lg-10 px-md-4" id="main" tabindex="-1">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2 m-0"><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">
+              <i class="fas fa-download"></i> Export
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- If your layout already includes flash, remove the next line -->
+      <!-- <%- include('../includes/flash') %> -->
+
+      <!-- Stats Cards -->
+      <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+          <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col me-2">
+                  <div class="text-xs fw-bold text-primary text-uppercase mb-1">Total Farmers</div>
+                  <div class="h5 mb-0 fw-bold text-gray-800"><%= (stats && stats.totalFarmers) || 0 %></div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-user-friends fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+          <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col me-2">
+                  <div class="text-xs fw-bold text-success text-uppercase mb-1">Total Buyers</div>
+                  <div class="h5 mb-0 fw-bold text-gray-800"><%= (stats && stats.totalBuyers) || 0 %></div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+          <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col me-2">
+                  <div class="text-xs fw-bold text-info text-uppercase mb-1">Total Requests</div>
+                  <div class="h5 mb-0 fw-bold text-gray-800"><%= (stats && stats.totalRequests) || 0 %></div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+          <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col me-2">
+                  <div class="text-xs fw-bold text-warning text-uppercase mb-1">Pending Requests</div>
+                  <div class="h5 mb-0 fw-bold text-gray-800"><%= (stats && stats.pendingRequests) || 0 %></div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-clock fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 fw-bold text-primary">Quick Actions</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <a href="/admin/users" class="btn btn-primary w-100">
+                    <i class="fas fa-users"></i> Manage Users
+                  </a>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <a href="/admin/requests" class="btn btn-info w-100">
+                    <i class="fas fa-clipboard-list"></i> View All Requests
+                  </a>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <a href="/admin/analytics" class="btn btn-success w-100">
+                    <i class="fas fa-chart-bar"></i> View Analytics
+                  </a>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <a href="/admin/settings" class="btn btn-warning w-100">
+                    <i class="fas fa-cog"></i> System Settings
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 fw-bold text-primary">System Status</h6>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <span class="badge bg-success">Online</span>
+                <span class="ms-2">System is running normally</span>
+              </div>
+              <div class="mb-3">
+                <span class="badge bg-primary">Active</span>
+                <span class="ms-2">Database connected</span>
+              </div>
+              <div class="mb-0">
+                <span class="badge bg-info">Ready</span>
+                <span class="ms-2">ML services available</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buyer and Seller Management Section -->
+      <div class="row">
+        <!-- Farmers/Sellers Management -->
+        <div class="col-lg-6">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 class="m-0 fw-bold text-primary">Farmers/Sellers Management</h6>
+              <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#refreshFarmersModal">
+                <i class="fas fa-sync-alt"></i> Refresh
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive table-scroll">
+                <table class="table table-bordered table-hover" id="farmersTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Username</th>
+                      <th>Location</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="farmersList">
+                    <% if (typeof farmers !== 'undefined' && farmers.length > 0) { %>
+                      <% farmers.forEach(farmer => { %>
+                        <tr>
+                          <td><%= farmer.name %></td>
+                          <td><%= farmer.username %></td>
+                          <td><%= farmer.location || 'N/A' %></td>
+                          <td>
+                            <div class="btn-group btn-group-sm">
+                              <button class="btn btn-info" onclick="viewFarmer('<%= farmer._id %>')">
+                                <i class="fas fa-eye"></i>
+                              </button>
+                              <button class="btn btn-warning" onclick="editFarmer('<%= farmer._id %>')">
+                                <i class="fas fa-edit"></i>
+                              </button>
+                              <button class="btn btn-danger" onclick="deleteFarmer('<%= farmer._id %>')">
+                                <i class="fas fa-trash"></i>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="4" class="text-center">No farmers found. <a href="#" onclick="loadFarmers()">Refresh</a></td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buyers Management -->
+        <div class="col-lg-6">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 class="m-0 fw-bold text-primary">Buyers Management</h6>
+              <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#refreshBuyersModal">
+                <i class="fas fa-sync-alt"></i> Refresh
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive table-scroll">
+                <table class="table table-bordered table-hover" id="buyersTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Username</th>
+                      <th>Email</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="buyersList">
+                    <% if (typeof buyers !== 'undefined' && buyers.length > 0) { %>
+                      <% buyers.forEach(buyer => { %>
+                        <tr>
+                          <td><%= buyer.name %></td>
+                          <td><%= buyer.username %></td>
+                          <td><%= buyer.email %></td>
+                          <td>
+                            <div class="btn-group btn-group-sm">
+                              <button class="btn btn-info" onclick="viewBuyer('<%= buyer._id %>')">
+                                <i class="fas fa-eye"></i>
+                              </button>
+                              <button class="btn btn-warning" onclick="editBuyer('<%= buyer._id %>')">
+                                <i class="fas fa-edit"></i>
+                              </button>
+                              <button class="btn btn-danger" onclick="deleteBuyer('<%= buyer._id %>')">
+                                <i class="fas fa-trash"></i>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="4" class="text-center">No buyers found. <a href="#" onclick="loadBuyers()">Refresh</a></td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transactions Section -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 class="m-0 fw-bold text-primary">Recent Transactions</h6>
+              <button class="btn btn-sm btn-outline-primary" onclick="refreshTransactions()">
+                <i class="fas fa-sync-alt"></i> Refresh
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive table-scroll">
+                <table class="table table-bordered table-hover" id="transactionsTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>Transaction ID</th>
+                      <th>Buyer</th>
+                      <th>Seller</th>
+                      <th>Crop</th>
+                      <th>Quantity</th>
+                      <th>Amount</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="transactionsList">
+                    <% if (typeof transactions !== 'undefined' && transactions.length > 0) { %>
+                      <% transactions.forEach(transaction => { %>
+                        <tr>
+                          <td><%= transaction._id.toString().substring(0, 8) %></td>
+                          <td><%= transaction.buyer.name %></td>
+                          <td><%= transaction.seller.name %></td>
+                          <td><%= transaction.crop %></td>
+                          <td><%= transaction.quantity %> kg</td>
+                          <td>₹<%= transaction.amount %></td>
+                          <td><%= new Date(transaction.date).toLocaleDateString() %></td>
+                          <td>
+                            <div class="btn-group btn-group-sm">
+                              <button class="btn btn-info" onclick="viewTransaction('<%= transaction._id %>')">
+                                <i class="fas fa-eye"></i>
+                              </button>
+                              <button class="btn btn-success" onclick="generateReceipt('<%= transaction._id %>')">
+                                <i class="fas fa-file-invoice"></i>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="8" class="text-center">No transactions found.</td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- JavaScript for Admin Dashboard Functionality -->
+<script>
+  // Load Farmers
+  function loadFarmers() {
+    fetch('/admin/api/farmers')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok: ' + response.status);
+        }
+        return response.json();
+      })
+      .then(data => {
+        const farmersList = document.getElementById('farmersList');
+        const limited = data.slice(0, 5);
+        if (limited.length > 0) {
+          farmersList.innerHTML = limited.map(farmer => `
+            <tr>
+              <td>${farmer.name}</td>
+              <td>${farmer.username}</td>
+              <td>${farmer.location || 'N/A'}</td>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-info" onclick="viewFarmer('${farmer._id}')">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button class="btn btn-warning" onclick="editFarmer('${farmer._id}')">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn btn-danger" onclick="deleteFarmer('${farmer._id}')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `).join('');
+        } else {
+          farmersList.innerHTML = `<tr><td colspan="4" class="text-center">No farmers found.</td></tr>`;
+        }
+      })
+      .catch(error => {
+        console.error('Error loading farmers:', error);
+        alert('Failed to load farmers. Please try again.');
+      });
+  }
+
+  // Load Buyers
+  function loadBuyers() {
+    fetch('/admin/api/buyers')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok: ' + response.status);
+        }
+        return response.json();
+      })
+      .then(data => {
+        const buyersList = document.getElementById('buyersList');
+        const limited = data.slice(0, 5);
+        if (limited.length > 0) {
+          buyersList.innerHTML = limited.map(buyer => `
+            <tr>
+              <td>${buyer.name}</td>
+              <td>${buyer.username}</td>
+              <td>${buyer.email}</td>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-info" onclick="viewBuyer('${buyer._id}')">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button class="btn btn-warning" onclick="editBuyer('${buyer._id}')">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn btn-danger" onclick="deleteBuyer('${buyer._id}')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `).join('');
+        } else {
+          buyersList.innerHTML = `<tr><td colspan="4" class="text-center">No buyers found.</td></tr>`;
+        }
+      })
+      .catch(error => {
+        console.error('Error loading buyers:', error);
+        alert('Failed to load buyers. Please try again.');
+      });
+  }
+
+  // CRUD Operations for Farmers
+  function viewFarmer(id) {
+    window.location.href = `/admin/farmers/${id}`;
+  }
+
+  function editFarmer(id) {
+    fetch(`/admin/api/farmers/${id}`)
+      .then(r => {
+        if (!r.ok) throw new Error('Failed to load farmer details');
+        return r.json();
+      })
+      .then(farmer => {
+        const name = prompt('Farmer name', farmer.name || '');
+        const username = prompt('Username', farmer.username || '');
+        const email = prompt('Email', farmer.email || '');
+        const location = prompt('Location', farmer.location || '');
+        if (name && username && email && location) {
+          return fetch(`/admin/api/farmers/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, username, email, location })
+          });
+        }
+      })
+      .then(res => res ? res.json() : null)
+      .then(data => {
+        if (data && data.success) {
+          alert('Farmer updated');
+          loadFarmers();
+        } else if (data) {
+          alert(data.message || 'Failed to update farmer');
+        }
+      })
+      .catch(err => {
+        console.error('Edit farmer error:', err);
+        alert('Failed to edit farmer. Please try again.');
+      });
+  }
+
+  function deleteFarmer(id) {
+    if (confirm('Are you sure you want to delete this farmer? This action cannot be undone.')) {
+      fetch(`/admin/api/farmers/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Farmer deleted successfully');
+          loadFarmers();
+        } else {
+          alert(data.message || 'Failed to delete farmer');
+        }
+      })
+      .catch(error => {
+        console.error('Error deleting farmer:', error);
+        alert('Failed to delete farmer. Please try again.');
+      });
+    }
+  }
+
+  // CRUD Operations for Buyers
+  function viewBuyer(id) {
+    window.location.href = `/admin/buyers/${id}`;
+  }
+
+  function editBuyer(id) {
+    fetch(`/admin/api/buyers/${id}`)
+      .then(r => {
+        if (!r.ok) throw new Error('Failed to load buyer details');
+        return r.json();
+      })
+      .then(buyer => {
+        const name = prompt('Buyer name', buyer.name || '');
+        const username = prompt('Username', buyer.username || '');
+        const email = prompt('Email', buyer.email || '');
+        const location = prompt('Location', buyer.location || '');
+        if (name && username && email && location) {
+          return fetch(`/admin/api/buyers/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, username, email, location })
+          });
+        }
+      })
+      .then(res => res ? res.json() : null)
+      .then(data => {
+        if (data && data.success) {
+          alert('Buyer updated');
+          loadBuyers();
+        } else if (data) {
+          alert(data.message || 'Failed to update buyer');
+        }
+      })
+      .catch(err => {
+        console.error('Edit buyer error:', err);
+        alert('Failed to edit buyer. Please try again.');
+      });
+  }
+
+  function deleteBuyer(id) {
+    if (confirm('Are you sure you want to delete this buyer? This action cannot be undone.')) {
+      fetch(`/admin/api/buyers/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Buyer deleted successfully');
+          loadBuyers();
+        } else {
+          alert(data.message || 'Failed to delete buyer');
+        }
+      })
+      .catch(error => {
+        console.error('Error deleting buyer:', error);
+        alert('Failed to delete buyer. Please try again.');
+      });
+    }
+  }
+
+  // Transaction Operations
+  function refreshTransactions() {
+    fetch('/admin/api/transactions')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok: ' + response.status);
+        }
+        return response.json();
+      })
+      .then(data => {
+        const transactionsList = document.getElementById('transactionsList');
+        const limited = data.slice(0, 5);
+        if (limited.length > 0) {
+          transactionsList.innerHTML = limited.map(transaction => `
+            <tr>
+              <td>${transaction._id.substring(0, 8)}</td>
+              <td>${transaction.buyer.name}</td>
+              <td>${transaction.seller.name}</td>
+              <td>${transaction.crop}</td>
+              <td>${transaction.quantity} kg</td>
+              <td>₹${transaction.amount}</td>
+              <td>${new Date(transaction.date).toLocaleDateString()}</td>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-info" onclick="viewTransaction('${transaction._id}')">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button class="btn btn-success" onclick="generateReceipt('${transaction._id}')">
+                    <i class="fas fa-file-invoice"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `).join('');
+        } else {
+          transactionsList.innerHTML = `<tr><td colspan="8" class="text-center">No transactions found.</td></tr>`;
+        }
+      })
+      .catch(error => {
+        console.error('Error loading transactions:', error);
+        alert('Failed to load transactions. Please try again.');
+      });
+  }
+
+  function viewTransaction(id) {
+    window.location.href = `/admin/transactions/${id}`;
+  }
+
+  function generateReceipt(id) {
+    window.open(`/admin/api/transactions/${id}/receipt`, '_blank');
+  }
+
+  // Initialize data loading
+  document.addEventListener('DOMContentLoaded', function() {
+    loadFarmers();
+    loadBuyers();
+    refreshTransactions();
+  });
+</script>
+
+<style>
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 48px 0 0;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    width: inherit;
+  }
+
+  .sidebar-sticky {
+    position: relative;
+    top: 0;
+    height: calc(100vh - 48px);
+    padding-top: .5rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .border-left-primary { border-left: 0.25rem solid #4e73df !important; }
+  .border-left-success { border-left: 0.25rem solid #1cc88a !important; }
+  .border-left-info    { border-left: 0.25rem solid #36b9cc !important; }
+  .border-left-warning { border-left: 0.25rem solid #f6c23e !important; }
+
+  .text-gray-800 { color: #5a5c69 !important; }
+  .text-gray-300 { color: #dddfeb !important; }
+
+  .table-scroll {
+    max-height: 260px;
+    overflow-y: auto;
+  }
+
+  .btn-block, .w-100 { width: 100%; }
+
+  @media (max-width: 767.98px) {
+    .sidebar {
+      top: 5rem;
+      position: static; /* prevent overlap on small screens */
+      box-shadow: none;
+    }
+  }
+</style>
+
+<script>
+  // Highlight active nav link
+  (function () {
+    try {
+      const current = window.location.pathname.replace(/\/+$/, '');
+      document.querySelectorAll('#admin-nav a[data-path]').forEach(a => {
+        const path = a.getAttribute('data-path').replace(/\/+$/, '');
+        if (current === path || (current.startsWith(path) && path !== '/')) {
+          a.classList.add('active');
+          a.setAttribute('aria-current', 'page');
+        }
+      });
+    } catch (_) {}
+  })();
+</script>

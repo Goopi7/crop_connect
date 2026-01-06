@@ -1,0 +1,1171 @@
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">
+                            <i class="bi bi-people me-2"></i>Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/crops">
+                            <i class="bi bi-flower1 me-2"></i>Crops
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/requests">
+                            <i class="bi bi-question-circle me-2"></i>Requests
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/analytics">
+                            <i class="bi bi-graph-up me-2"></i>Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/settings">
+                            <i class="bi bi-gear me-2"></i>Settings
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Crop Management</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="exportCropsBtn">
+                            <i class="bi bi-download me-1"></i>Export
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCropModal">
+                            <i class="bi bi-plus-lg me-1"></i>Add Crop
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="searchCrops" placeholder="Search crops...">
+                        <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-end">
+                        <select class="form-select me-2" id="categoryFilter" style="max-width: 200px;">
+                            <option value="">All Categories</option>
+                            <option value="grain">Grain</option>
+                            <option value="vegetable">Vegetable</option>
+                            <option value="fruit">Fruit</option>
+                            <option value="pulse">Pulse</option>
+                            <option value="oilseed">Oilseed</option>
+                            <option value="fiber">Fiber</option>
+                            <option value="spice">Spice</option>
+                        </select>
+                        <select class="form-select" id="seasonFilter" style="max-width: 200px;">
+                            <option value="">All Seasons</option>
+                            <option value="kharif">Kharif</option>
+                            <option value="rabi">Rabi</option>
+                            <option value="zaid">Zaid</option>
+                            <option value="perennial">Perennial</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crops Table -->
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Scientific Name</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Season</th>
+                            <th scope="col">Growth Duration</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cropsTableBody">
+                        <!-- Crops will be loaded here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Crops pagination">
+                <ul class="pagination justify-content-center" id="cropsPagination">
+                    <!-- Pagination will be generated dynamically -->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Add Crop Modal -->
+<div class="modal fade" id="addCropModal" tabindex="-1" aria-labelledby="addCropModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCropModalLabel">Add New Crop</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addCropForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="cropName" class="form-label">Crop Name</label>
+                            <input type="text" class="form-control" id="cropName" name="name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="scientificName" class="form-label">Scientific Name</label>
+                            <input type="text" class="form-control" id="scientificName" name="scientific_name" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="cropCategory" class="form-label">Category</label>
+                            <select class="form-select" id="cropCategory" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="grain">Grain</option>
+                                <option value="vegetable">Vegetable</option>
+                                <option value="fruit">Fruit</option>
+                                <option value="pulse">Pulse</option>
+                                <option value="oilseed">Oilseed</option>
+                                <option value="fiber">Fiber</option>
+                                <option value="spice">Spice</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="cropSeason" class="form-label">Season</label>
+                            <select class="form-select" id="cropSeason" name="season" required>
+                                <option value="">Select Season</option>
+                                <option value="kharif">Kharif</option>
+                                <option value="rabi">Rabi</option>
+                                <option value="zaid">Zaid</option>
+                                <option value="perennial">Perennial</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="growthDuration" class="form-label">Growth Duration (days)</label>
+                            <input type="number" class="form-control" id="growthDuration" name="growth_duration" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cropDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="cropDescription" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="waterRequirement" class="form-label">Water Requirement (mm)</label>
+                            <input type="number" class="form-control" id="waterRequirement" name="water_requirement">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="soilType" class="form-label">Soil Type</label>
+                            <input type="text" class="form-control" id="soilType" name="soil_type">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Climate Zones</label>
+                        <div class="row" id="climateZonesContainer">
+                            <div class="col-12 mb-2 climate-zone-entry">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="climate_zones[]" placeholder="Enter climate zone">
+                                    <button type="button" class="btn btn-outline-secondary add-climate-zone">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Growth Stages</label>
+                        <div id="growthStagesContainer">
+                            <div class="card mb-2 growth-stage-card">
+                                <div class="card-body">
+                                    <div class="row mb-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Stage Name</label>
+                                            <input type="text" class="form-control" name="growth_stages[0][name]" placeholder="e.g., Germination">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Days from Sowing</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" name="growth_stages[0][days_min]" placeholder="Min">
+                                                <span class="input-group-text">-</span>
+                                                <input type="number" class="form-control" name="growth_stages[0][days_max]" placeholder="Max">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Description</label>
+                                        <textarea class="form-control" name="growth_stages[0][description]" rows="2"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="addGrowthStage">
+                            <i class="bi bi-plus-lg me-1"></i>Add Growth Stage
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveCropBtn">Save Crop</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Crop Modal -->
+<div class="modal fade" id="editCropModal" tabindex="-1" aria-labelledby="editCropModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCropModalLabel">Edit Crop</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCropForm">
+                    <input type="hidden" id="editCropId">
+                    <!-- Same form fields as Add Crop Modal -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="editCropName" class="form-label">Crop Name</label>
+                            <input type="text" class="form-control" id="editCropName" name="name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editScientificName" class="form-label">Scientific Name</label>
+                            <input type="text" class="form-control" id="editScientificName" name="scientific_name" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="editCropCategory" class="form-label">Category</label>
+                            <select class="form-select" id="editCropCategory" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="grain">Grain</option>
+                                <option value="vegetable">Vegetable</option>
+                                <option value="fruit">Fruit</option>
+                                <option value="pulse">Pulse</option>
+                                <option value="oilseed">Oilseed</option>
+                                <option value="fiber">Fiber</option>
+                                <option value="spice">Spice</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="editCropSeason" class="form-label">Season</label>
+                            <select class="form-select" id="editCropSeason" name="season" required>
+                                <option value="">Select Season</option>
+                                <option value="kharif">Kharif</option>
+                                <option value="rabi">Rabi</option>
+                                <option value="zaid">Zaid</option>
+                                <option value="perennial">Perennial</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="editGrowthDuration" class="form-label">Growth Duration (days)</label>
+                            <input type="number" class="form-control" id="editGrowthDuration" name="growth_duration" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCropDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editCropDescription" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="editWaterRequirement" class="form-label">Water Requirement (mm)</label>
+                            <input type="number" class="form-control" id="editWaterRequirement" name="water_requirement">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editSoilType" class="form-label">Soil Type</label>
+                            <input type="text" class="form-control" id="editSoilType" name="soil_type">
+                        </div>
+                    </div>
+                    <div id="editClimateZonesContainer" class="mb-3">
+                        <label class="form-label">Climate Zones</label>
+                        <!-- Climate zones will be loaded dynamically -->
+                    </div>
+                    <div id="editGrowthStagesContainer" class="mb-3">
+                        <label class="form-label">Growth Stages</label>
+                        <!-- Growth stages will be loaded dynamically -->
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="updateCropBtn">Update Crop</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Crop Modal -->
+<div class="modal fade" id="viewCropModal" tabindex="-1" aria-labelledby="viewCropModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewCropModalLabel">Crop Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="viewCropDetails">
+                <!-- Crop details will be loaded here dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="editCropBtn">Edit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteCropModal" tabindex="-1" aria-labelledby="deleteCropModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteCropModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this crop? This action cannot be undone.</p>
+                <p><strong>Crop: </strong><span id="deleteCropName"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global variables
+    let currentPage = 1;
+    let totalPages = 1;
+    let cropsPerPage = 10;
+    let allCrops = [];
+    let filteredCrops = [];
+    let growthStageCounter = 1;
+    let currentCropId = null;
+
+    // Document ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load crops on page load
+        loadCrops();
+
+        // Event listeners
+        document.getElementById('searchBtn').addEventListener('click', searchCrops);
+        document.getElementById('searchCrops').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                searchCrops();
+            }
+        });
+        document.getElementById('categoryFilter').addEventListener('change', filterCrops);
+        document.getElementById('seasonFilter').addEventListener('change', filterCrops);
+        document.getElementById('exportCropsBtn').addEventListener('click', exportCrops);
+        document.getElementById('saveCropBtn').addEventListener('click', saveCrop);
+        document.getElementById('updateCropBtn').addEventListener('click', updateCrop);
+        document.getElementById('confirmDeleteBtn').addEventListener('click', deleteCrop);
+        document.getElementById('addGrowthStage').addEventListener('click', addGrowthStageField);
+        
+        // Add event delegation for dynamic elements
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('view-crop-btn') || e.target.parentElement.classList.contains('view-crop-btn')) {
+                const cropId = e.target.closest('.view-crop-btn').dataset.id;
+                viewCrop(cropId);
+            } else if (e.target.classList.contains('edit-crop-btn') || e.target.parentElement.classList.contains('edit-crop-btn')) {
+                const cropId = e.target.closest('.edit-crop-btn').dataset.id;
+                loadCropForEdit(cropId);
+            } else if (e.target.classList.contains('delete-crop-btn') || e.target.parentElement.classList.contains('delete-crop-btn')) {
+                const cropId = e.target.closest('.delete-crop-btn').dataset.id;
+                const cropName = e.target.closest('.delete-crop-btn').dataset.name;
+                showDeleteConfirmation(cropId, cropName);
+            } else if (e.target.classList.contains('add-climate-zone') || e.target.parentElement.classList.contains('add-climate-zone')) {
+                addClimateZoneField(e.target.closest('.add-climate-zone'));
+            } else if (e.target.classList.contains('remove-climate-zone') || e.target.parentElement.classList.contains('remove-climate-zone')) {
+                removeClimateZoneField(e.target.closest('.remove-climate-zone'));
+            } else if (e.target.classList.contains('remove-growth-stage') || e.target.parentElement.classList.contains('remove-growth-stage')) {
+                removeGrowthStageField(e.target.closest('.remove-growth-stage'));
+            }
+        });
+
+        // Handle pagination clicks
+        document.getElementById('cropsPagination').addEventListener('click', function(e) {
+            if (e.target.tagName === 'A' && e.target.dataset.page) {
+                e.preventDefault();
+                currentPage = parseInt(e.target.dataset.page);
+                renderCropsTable();
+            }
+        });
+
+        // Initialize the first climate zone add button
+        document.querySelector('.add-climate-zone').addEventListener('click', function() {
+            addClimateZoneField(this);
+        });
+
+        // Edit button in view modal
+        document.getElementById('editCropBtn').addEventListener('click', function() {
+            $('#viewCropModal').modal('hide');
+            loadCropForEdit(currentCropId);
+        });
+    });
+
+    // Load crops from API
+    function loadCrops() {
+        fetch('/api/admin/crops')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load crops');
+                }
+                return response.json();
+            })
+            .then(data => {
+                allCrops = data;
+                filteredCrops = [...allCrops];
+                totalPages = Math.ceil(filteredCrops.length / cropsPerPage);
+                renderCropsTable();
+            })
+            .catch(error => {
+                console.error('Error loading crops:', error);
+                showAlert('Failed to load crops. Please try again.', 'danger');
+            });
+    }
+
+    // Render crops table
+    function renderCropsTable() {
+        const tableBody = document.getElementById('cropsTableBody');
+        tableBody.innerHTML = '';
+        
+        const startIndex = (currentPage - 1) * cropsPerPage;
+        const endIndex = Math.min(startIndex + cropsPerPage, filteredCrops.length);
+        
+        if (filteredCrops.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="7" class="text-center">No crops found</td></tr>`;
+            renderPagination(0);
+            return;
+        }
+        
+        for (let i = startIndex; i < endIndex; i++) {
+            const crop = filteredCrops[i];
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${i + 1}</td>
+                <td>${crop.name}</td>
+                <td><em>${crop.scientific_name || '-'}</em></td>
+                <td>${crop.category || '-'}</td>
+                <td>${crop.season || '-'}</td>
+                <td>${crop.growth_duration ? crop.growth_duration + ' days' : '-'}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-info view-crop-btn" data-id="${crop._id}">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary edit-crop-btn" data-id="${crop._id}">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-crop-btn" data-id="${crop._id}" data-name="${crop.name}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        }
+        
+        renderPagination(filteredCrops.length);
+    }
+
+    // Render pagination
+    function renderPagination(totalItems) {
+        const pagination = document.getElementById('cropsPagination');
+        pagination.innerHTML = '';
+        
+        totalPages = Math.ceil(totalItems / cropsPerPage);
+        
+        if (totalPages <= 1) {
+            return;
+        }
+        
+        // Previous button
+        const prevLi = document.createElement('li');
+        prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+        prevLi.innerHTML = `<a class="page-link" href="#" data-page="${currentPage - 1}" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+        </a>`;
+        pagination.appendChild(prevLi);
+        
+        // Page numbers
+        const maxPages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxPages / 2));
+        let endPage = Math.min(totalPages, startPage + maxPages - 1);
+        
+        if (endPage - startPage + 1 < maxPages) {
+            startPage = Math.max(1, endPage - maxPages + 1);
+        }
+        
+        for (let i = startPage; i <= endPage; i++) {
+            const li = document.createElement('li');
+            li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+            li.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
+            pagination.appendChild(li);
+        }
+        
+        // Next button
+        const nextLi = document.createElement('li');
+        nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+        nextLi.innerHTML = `<a class="page-link" href="#" data-page="${currentPage + 1}" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+        </a>`;
+        pagination.appendChild(nextLi);
+    }
+
+    // Search crops
+    function searchCrops() {
+        const searchTerm = document.getElementById('searchCrops').value.toLowerCase();
+        
+        if (searchTerm.trim() === '') {
+            filterCrops(); // Reset to just category/season filters
+            return;
+        }
+        
+        filteredCrops = allCrops.filter(crop => {
+            const matchesSearch = crop.name.toLowerCase().includes(searchTerm) || 
+                                 (crop.scientific_name && crop.scientific_name.toLowerCase().includes(searchTerm));
+            
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const seasonFilter = document.getElementById('seasonFilter').value;
+            
+            const matchesCategory = categoryFilter === '' || crop.category === categoryFilter;
+            const matchesSeason = seasonFilter === '' || crop.season === seasonFilter;
+            
+            return matchesSearch && matchesCategory && matchesSeason;
+        });
+        
+        currentPage = 1;
+        renderCropsTable();
+    }
+
+    // Filter crops by category and season
+    function filterCrops() {
+        const categoryFilter = document.getElementById('categoryFilter').value;
+        const seasonFilter = document.getElementById('seasonFilter').value;
+        const searchTerm = document.getElementById('searchCrops').value.toLowerCase();
+        
+        filteredCrops = allCrops.filter(crop => {
+            const matchesCategory = categoryFilter === '' || crop.category === categoryFilter;
+            const matchesSeason = seasonFilter === '' || crop.season === seasonFilter;
+            const matchesSearch = searchTerm === '' || 
+                                 crop.name.toLowerCase().includes(searchTerm) || 
+                                 (crop.scientific_name && crop.scientific_name.toLowerCase().includes(searchTerm));
+            
+            return matchesCategory && matchesSeason && matchesSearch;
+        });
+        
+        currentPage = 1;
+        renderCropsTable();
+    }
+
+    // Export crops to CSV
+    function exportCrops() {
+        const headers = ['Name', 'Scientific Name', 'Category', 'Season', 'Growth Duration', 'Water Requirement', 'Soil Type'];
+        
+        let csvContent = headers.join(',') + '\n';
+        
+        filteredCrops.forEach(crop => {
+            const row = [
+                `"${crop.name || ''}"`,
+                `"${crop.scientific_name || ''}"`,
+                `"${crop.category || ''}"`,
+                `"${crop.season || ''}"`,
+                `"${crop.growth_duration || ''}"`,
+                `"${crop.water_requirement || ''}"`,
+                `"${crop.soil_type || ''}"`
+            ];
+            csvContent += row.join(',') + '\n';
+        });
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'crops_export.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Save new crop
+    function saveCrop() {
+        const form = document.getElementById('addCropForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        
+        const formData = new FormData(form);
+        const cropData = {
+            name: formData.get('name'),
+            scientific_name: formData.get('scientific_name'),
+            category: formData.get('category'),
+            season: formData.get('season'),
+            growth_duration: formData.get('growth_duration'),
+            description: formData.get('description'),
+            water_requirement: formData.get('water_requirement'),
+            soil_type: formData.get('soil_type'),
+            climate_zones: [],
+            growth_stages: []
+        };
+        
+        // Get climate zones
+        const climateZoneInputs = form.querySelectorAll('input[name="climate_zones[]"]');
+        climateZoneInputs.forEach(input => {
+            if (input.value.trim()) {
+                cropData.climate_zones.push(input.value.trim());
+            }
+        });
+        
+        // Get growth stages
+        const growthStageCards = form.querySelectorAll('.growth-stage-card');
+        growthStageCards.forEach((card, index) => {
+            const name = card.querySelector(`input[name="growth_stages[${index}][name]"]`).value;
+            const daysMin = card.querySelector(`input[name="growth_stages[${index}][days_min]"]`).value;
+            const daysMax = card.querySelector(`input[name="growth_stages[${index}][days_max]"]`).value;
+            const description = card.querySelector(`textarea[name="growth_stages[${index}][description]"]`).value;
+            
+            if (name.trim()) {
+                cropData.growth_stages.push({
+                    name: name,
+                    days_from_sowing: {
+                        min: daysMin || 0,
+                        max: daysMax || 0
+                    },
+                    description: description
+                });
+            }
+        });
+        
+        fetch('/api/admin/crops', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(cropData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to save crop');
+            }
+            return response.json();
+        })
+        .then(data => {
+            $('#addCropModal').modal('hide');
+            form.reset();
+            showAlert('Crop added successfully!', 'success');
+            loadCrops();
+        })
+        .catch(error => {
+            console.error('Error saving crop:', error);
+            showAlert('Failed to save crop. Please try again.', 'danger');
+        });
+    }
+
+    // View crop details
+    function viewCrop(cropId) {
+        currentCropId = cropId;
+        
+        fetch(`/api/admin/crops/${cropId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load crop details');
+                }
+                return response.json();
+            })
+            .then(crop => {
+                const detailsContainer = document.getElementById('viewCropDetails');
+                
+                let climateZonesHtml = '<p>None specified</p>';
+                if (crop.climate_zones && crop.climate_zones.length > 0) {
+                    climateZonesHtml = '<ul>' + crop.climate_zones.map(zone => `<li>${zone}</li>`).join('') + '</ul>';
+                }
+                
+                let growthStagesHtml = '<p>None specified</p>';
+                if (crop.growth_stages && crop.growth_stages.length > 0) {
+                    growthStagesHtml = crop.growth_stages.map(stage => `
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <h6>${stage.name}</h6>
+                                <p><strong>Days from sowing:</strong> ${stage.days_from_sowing.min} - ${stage.days_from_sowing.max}</p>
+                                <p>${stage.description || 'No description'}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                detailsContainer.innerHTML = `
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h4>${crop.name}</h4>
+                            <p><em>${crop.scientific_name || 'No scientific name'}</em></p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <span class="badge bg-primary">${crop.category || 'Uncategorized'}</span>
+                            <span class="badge bg-secondary">${crop.season || 'No season'}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h5>Description</h5>
+                            <p>${crop.description || 'No description available'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <h5>Growth Duration</h5>
+                            <p>${crop.growth_duration ? crop.growth_duration + ' days' : 'Not specified'}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>Water Requirement</h5>
+                            <p>${crop.water_requirement ? crop.water_requirement + ' mm' : 'Not specified'}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>Soil Type</h5>
+                            <p>${crop.soil_type || 'Not specified'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h5>Climate Zones</h5>
+                            ${climateZonesHtml}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <h5>Growth Stages</h5>
+                            ${growthStagesHtml}
+                        </div>
+                    </div>
+                `;
+                
+                $('#viewCropModal').modal('show');
+            })
+            .catch(error => {
+                console.error('Error loading crop details:', error);
+                showAlert('Failed to load crop details. Please try again.', 'danger');
+            });
+    }
+
+    // Load crop for editing
+    function loadCropForEdit(cropId) {
+        currentCropId = cropId;
+        
+        fetch(`/api/admin/crops/${cropId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load crop for editing');
+                }
+                return response.json();
+            })
+            .then(crop => {
+                document.getElementById('editCropId').value = crop._id;
+                document.getElementById('editCropName').value = crop.name || '';
+                document.getElementById('editScientificName').value = crop.scientific_name || '';
+                document.getElementById('editCropCategory').value = crop.category || '';
+                document.getElementById('editCropSeason').value = crop.season || '';
+                document.getElementById('editGrowthDuration').value = crop.growth_duration || '';
+                document.getElementById('editCropDescription').value = crop.description || '';
+                document.getElementById('editWaterRequirement').value = crop.water_requirement || '';
+                document.getElementById('editSoilType').value = crop.soil_type || '';
+                
+                // Load climate zones
+                const climateZonesContainer = document.getElementById('editClimateZonesContainer');
+                climateZonesContainer.innerHTML = `
+                    <label class="form-label">Climate Zones</label>
+                    <div class="row" id="editClimateZonesList">
+                    </div>
+                `;
+                
+                const editClimateZonesList = document.getElementById('editClimateZonesList');
+                
+                if (!crop.climate_zones || crop.climate_zones.length === 0) {
+                    editClimateZonesList.innerHTML = `
+                        <div class="col-12 mb-2 climate-zone-entry">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="edit_climate_zones[]" placeholder="Enter climate zone">
+                                <button type="button" class="btn btn-outline-secondary add-climate-zone">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    crop.climate_zones.forEach((zone, index) => {
+                        const zoneEntry = document.createElement('div');
+                        zoneEntry.className = 'col-12 mb-2 climate-zone-entry';
+                        
+                        if (index === 0) {
+                            zoneEntry.innerHTML = `
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="edit_climate_zones[]" value="${zone}" placeholder="Enter climate zone">
+                                    <button type="button" class="btn btn-outline-secondary add-climate-zone">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </div>
+                            `;
+                        } else {
+                            zoneEntry.innerHTML = `
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="edit_climate_zones[]" value="${zone}" placeholder="Enter climate zone">
+                                    <button type="button" class="btn btn-outline-secondary remove-climate-zone">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
+                                </div>
+                            `;
+                        }
+                        
+                        editClimateZonesList.appendChild(zoneEntry);
+                    });
+                }
+                
+                // Load growth stages
+                const growthStagesContainer = document.getElementById('editGrowthStagesContainer');
+                growthStagesContainer.innerHTML = `
+                    <label class="form-label">Growth Stages</label>
+                    <div id="editGrowthStagesList">
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="editAddGrowthStage">
+                        <i class="bi bi-plus-lg me-1"></i>Add Growth Stage
+                    </button>
+                `;
+                
+                const editGrowthStagesList = document.getElementById('editGrowthStagesList');
+                
+                if (!crop.growth_stages || crop.growth_stages.length === 0) {
+                    editGrowthStagesList.innerHTML = `
+                        <div class="card mb-2 growth-stage-card">
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Stage Name</label>
+                                        <input type="text" class="form-control" name="edit_growth_stages[0][name]" placeholder="e.g., Germination">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Days from Sowing</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="edit_growth_stages[0][days_min]" placeholder="Min">
+                                            <span class="input-group-text">-</span>
+                                            <input type="number" class="form-control" name="edit_growth_stages[0][days_max]" placeholder="Max">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" name="edit_growth_stages[0][description]" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    crop.growth_stages.forEach((stage, index) => {
+                        const stageCard = document.createElement('div');
+                        stageCard.className = 'card mb-2 growth-stage-card';
+                        
+                        stageCard.innerHTML = `
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">Stage ${index + 1}</h6>
+                                    ${index > 0 ? `
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-growth-stage">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    ` : ''}
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Stage Name</label>
+                                        <input type="text" class="form-control" name="edit_growth_stages[${index}][name]" value="${stage.name || ''}" placeholder="e.g., Germination">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Days from Sowing</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="edit_growth_stages[${index}][days_min]" value="${stage.days_from_sowing?.min || ''}" placeholder="Min">
+                                            <span class="input-group-text">-</span>
+                                            <input type="number" class="form-control" name="edit_growth_stages[${index}][days_max]" value="${stage.days_from_sowing?.max || ''}" placeholder="Max">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" name="edit_growth_stages[${index}][description]" rows="2">${stage.description || ''}</textarea>
+                                </div>
+                            </div>
+                        `;
+                        
+                        editGrowthStagesList.appendChild(stageCard);
+                    });
+                }
+                
+                // Add event listener for adding growth stages in edit mode
+                document.getElementById('editAddGrowthStage').addEventListener('click', addEditGrowthStageField);
+                
+                $('#editCropModal').modal('show');
+            })
+            .catch(error => {
+                console.error('Error loading crop for edit:', error);
+                showAlert('Failed to load crop for editing. Please try again.', 'danger');
+            });
+    }
+
+    // Update crop
+    function updateCrop() {
+        const form = document.getElementById('editCropForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        
+        const cropId = document.getElementById('editCropId').value;
+        
+        const cropData = {
+            name: document.getElementById('editCropName').value,
+            scientific_name: document.getElementById('editScientificName').value,
+            category: document.getElementById('editCropCategory').value,
+            season: document.getElementById('editCropSeason').value,
+            growth_duration: document.getElementById('editGrowthDuration').value,
+            description: document.getElementById('editCropDescription').value,
+            water_requirement: document.getElementById('editWaterRequirement').value,
+            soil_type: document.getElementById('editSoilType').value,
+            climate_zones: [],
+            growth_stages: []
+        };
+        
+        // Get climate zones
+        const climateZoneInputs = form.querySelectorAll('input[name="edit_climate_zones[]"]');
+        climateZoneInputs.forEach(input => {
+            if (input.value.trim()) {
+                cropData.climate_zones.push(input.value.trim());
+            }
+        });
+        
+        // Get growth stages
+        const growthStageCards = form.querySelectorAll('.growth-stage-card');
+        growthStageCards.forEach((card, index) => {
+            const nameInput = card.querySelector(`input[name^="edit_growth_stages["][name$="[name]"]`);
+            const daysMinInput = card.querySelector(`input[name^="edit_growth_stages["][name$="[days_min]"]`);
+            const daysMaxInput = card.querySelector(`input[name^="edit_growth_stages["][name$="[days_max]"]`);
+            const descriptionInput = card.querySelector(`textarea[name^="edit_growth_stages["][name$="[description]"]`);
+            
+            if (nameInput && nameInput.value.trim()) {
+                cropData.growth_stages.push({
+                    name: nameInput.value,
+                    days_from_sowing: {
+                        min: daysMinInput ? parseInt(daysMinInput.value) || 0 : 0,
+                        max: daysMaxInput ? parseInt(daysMaxInput.value) || 0 : 0
+                    },
+                    description: descriptionInput ? descriptionInput.value : ''
+                });
+            }
+        });
+        
+        fetch(`/api/admin/crops/${cropId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(cropData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to update crop');
+            }
+            return response.json();
+        })
+        .then(data => {
+            $('#editCropModal').modal('hide');
+            showAlert('Crop updated successfully!', 'success');
+            loadCrops();
+        })
+        .catch(error => {
+            console.error('Error updating crop:', error);
+            showAlert('Failed to update crop. Please try again.', 'danger');
+        });
+    }
+
+    // Show delete confirmation
+    function showDeleteConfirmation(cropId, cropName) {
+        currentCropId = cropId;
+        document.getElementById('deleteCropName').textContent = cropName;
+        $('#deleteCropModal').modal('show');
+    }
+
+    // Delete crop
+    function deleteCrop() {
+        fetch(`/api/admin/crops/${currentCropId}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to delete crop');
+            }
+            return response.json();
+        })
+        .then(data => {
+            $('#deleteCropModal').modal('hide');
+            showAlert('Crop deleted successfully!', 'success');
+            loadCrops();
+        })
+        .catch(error => {
+            console.error('Error deleting crop:', error);
+            showAlert('Failed to delete crop. Please try again.', 'danger');
+        });
+    }
+
+    // Add climate zone field
+    function addClimateZoneField(button) {
+        const container = button.closest('.climate-zone-entry');
+        const parent = container.parentElement;
+        
+        const newEntry = document.createElement('div');
+        newEntry.className = 'col-12 mb-2 climate-zone-entry';
+        newEntry.innerHTML = `
+            <div class="input-group">
+                <input type="text" class="form-control" name="${container.querySelector('input').name}" placeholder="Enter climate zone">
+                <button type="button" class="btn btn-outline-secondary remove-climate-zone">
+                    <i class="bi bi-dash-lg"></i>
+                </button>
+            </div>
+        `;
+        
+        parent.appendChild(newEntry);
+    }
+
+    // Remove climate zone field
+    function removeClimateZoneField(button) {
+        const container = button.closest('.climate-zone-entry');
+        container.remove();
+    }
+
+    // Add growth stage field
+    function addGrowthStageField() {
+        const container = document.getElementById('growthStagesContainer');
+        
+        const newStage = document.createElement('div');
+        newStage.className = 'card mb-2 growth-stage-card';
+        newStage.innerHTML = `
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Stage ${growthStageCounter + 1}</h6>
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-growth-stage">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-6">
+                        <label class="form-label">Stage Name</label>
+                        <input type="text" class="form-control" name="growth_stages[${growthStageCounter}][name]" placeholder="e.g., Germination">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Days from Sowing</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" name="growth_stages[${growthStageCounter}][days_min]" placeholder="Min">
+                            <span class="input-group-text">-</span>
+                            <input type="number" class="form-control" name="growth_stages[${growthStageCounter}][days_max]" placeholder="Max">
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" name="growth_stages[${growthStageCounter}][description]" rows="2"></textarea>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(newStage);
+        growthStageCounter++;
+    }
+
+    // Add growth stage field in edit mode
+    function addEditGrowthStageField() {
+        const container = document.getElementById('editGrowthStagesList');
+        const stageCount = container.querySelectorAll('.growth-stage-card').length;
+        
+        const newStage = document.createElement('div');
+        newStage.className = 'card mb-2 growth-stage-card';
+        newStage.innerHTML = `
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Stage ${stageCount + 1}</h6>
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-growth-stage">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-6">
+                        <label class="form-label">Stage Name</label>
+                        <input type="text" class="form-control" name="edit_growth_stages[${stageCount}][name]" placeholder="e.g., Germination">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Days from Sowing</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" name="edit_growth_stages[${stageCount}][days_min]" placeholder="Min">
+                            <span class="input-group-text">-</span>
+                            <input type="number" class="form-control" name="edit_growth_stages[${stageCount}][days_max]" placeholder="Max">
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" name="edit_growth_stages[${stageCount}][description]" rows="2"></textarea>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(newStage);
+    }
+
+    // Remove growth stage field
+    function removeGrowthStageField(button) {
+        const card = button.closest('.growth-stage-card');
+        card.remove();
+    }
+
+    // Show alert
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.setAttribute('role', 'alert');
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        document.querySelector('.container-fluid').prepend(alertDiv);
+        
+        // Auto dismiss after 5 seconds
+        setTimeout(() => {
+            alertDiv.classList.remove('show');
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 150);
+        }, 5000);
+    }
+</script>

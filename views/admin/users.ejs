@@ -1,0 +1,1026 @@
+<!-- NOTE: Do NOT include the layout here. The route should set { layout: 'layout/boilerplate' } -->
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <aside class="col-md-3 col-lg-2 d-none d-md-block bg-light sidebar border-end" aria-label="Admin navigation">
+      <div class="position-sticky pt-3">
+        <div class="text-center mb-4">
+          <h5 class="mb-1"><i class="fas fa-user-shield text-primary"></i> Admin Panel</h5>
+          <p class="text-muted small mb-1">Welcome, <%= adminName %></p>
+          <span class="badge bg-secondary"><%= adminRole %></span>
+        </div>
+
+        <nav>
+          <ul class="nav flex-column" id="admin-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/dashboard" data-path="/admin/dashboard">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/admin/users" data-path="/admin/users">
+                <i class="fas fa-users"></i> Manage Users
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/requests" data-path="/admin/requests">
+                <i class="fas fa-clipboard-list"></i> View Requests
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/analytics" data-path="/admin/analytics">
+                <i class="fas fa-chart-bar"></i> Analytics
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/settings" data-path="/admin/settings">
+                <i class="fas fa-cog"></i> Settings
+              </a>
+            </li>
+            <li class="nav-item mt-3">
+              <a class="nav-link text-danger" href="/logoutadmin">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="col-12 col-md-9 ms-sm-auto col-lg-10 px-md-4" id="main" tabindex="-1">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2 m-0"><i class="fas fa-users"></i> User Management</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="exportUsersBtn">
+              <i class="fas fa-download"></i> Export
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+              <i class="fas fa-plus"></i> Add User
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Management Tabs -->
+      <ul class="nav nav-tabs mb-4" id="userTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="farmers-tab" data-bs-toggle="tab" data-bs-target="#farmers" type="button" role="tab" aria-controls="farmers" aria-selected="false">
+            Farmers
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="buyers-tab" data-bs-toggle="tab" data-bs-target="#buyers" type="button" role="tab" aria-controls="buyers" aria-selected="false">
+            Buyers
+          </button>
+        </li>
+      </ul>
+
+      <!-- <div class="tab-content" id="userTabsContent">
+        All Users Tab
+        <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 class="m-0 fw-bold text-primary">All Users</h6>
+              <div class="input-group w-50">
+                <input type="text" class="form-control" placeholder="Search users..." id="searchAllUsers">
+                <button class="btn btn-outline-secondary" type="button">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="allUsersTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Username</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="allUsersList">
+
+                  </tbody>
+                </table>
+              </div>
+              <div id="allUsersPagination" class="d-flex justify-content-between align-items-center mt-3">
+                <div class="dataTables_info">
+                  Showing <span id="allUsersShowing">0</span> of <span id="allUsersTotal">0</span> users
+                </div>
+                <nav aria-label="User pagination">
+                  <ul class="pagination pagination-sm mb-0">
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div> -->
+
+        <!-- Farmers Tab -->
+        <div class="tab-pane fade" id="farmers" role="tabpanel" aria-labelledby="farmers-tab">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 class="m-0 fw-bold text-primary">Farmers</h6>
+              <div class="input-group w-50">
+                <input type="text" class="form-control" placeholder="Search farmers..." id="searchFarmers">
+                <button class="btn btn-outline-secondary" type="button">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="farmersTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Username</th>
+                      <th>Location</th>
+                      <th>Crops</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="farmersList">
+                    <!-- Will be populated by JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+              <div id="farmersPagination" class="d-flex justify-content-between align-items-center mt-3">
+                <div class="dataTables_info">
+                  Showing <span id="farmersShowing">0</span> of <span id="farmersTotal">0</span> farmers
+                </div>
+                <nav aria-label="Farmers pagination">
+                  <ul class="pagination pagination-sm mb-0">
+                    <!-- Will be populated by JavaScript -->
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buyers Tab -->
+        <div class="tab-pane fade" id="buyers" role="tabpanel" aria-labelledby="buyers-tab">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 class="m-0 fw-bold text-primary">Buyers</h6>
+              <div class="input-group w-50">
+                <input type="text" class="form-control" placeholder="Search buyers..." id="searchBuyers">
+                <button class="btn btn-outline-secondary" type="button">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="buyersTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Username</th>
+                      <th>Email</th>
+                      <th>Business</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="buyersList">
+                    <!-- Will be populated by JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+              <div id="buyersPagination" class="d-flex justify-content-between align-items-center mt-3">
+                <div class="dataTables_info">
+                  Showing <span id="buyersShowing">0</span> of <span id="buyersTotal">0</span> buyers
+                </div>
+                <nav aria-label="Buyers pagination">
+                  <ul class="pagination pagination-sm mb-0">
+                    <!-- Will be populated by JavaScript -->
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admins Tab -->
+        <div class="tab-pane fade" id="admins" role="tabpanel" aria-labelledby="admins-tab">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 class="m-0 fw-bold text-primary">Administrators</h6>
+              <div class="input-group w-50">
+                <input type="text" class="form-control" placeholder="Search admins..." id="searchAdmins">
+                <button class="btn btn-outline-secondary" type="button">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="adminsTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Username</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminsList">
+                    <!-- Will be populated by JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+              <div id="adminsPagination" class="d-flex justify-content-between align-items-center mt-3">
+                <div class="dataTables_info">
+                  Showing <span id="adminsShowing">0</span> of <span id="adminsTotal">0</span> admins
+                </div>
+                <nav aria-label="Admins pagination">
+                  <ul class="pagination pagination-sm mb-0">
+                    <!-- Will be populated by JavaScript -->
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addUserModalLabel">Add New User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addUserForm">
+          <div class="mb-3">
+            <label for="userRole" class="form-label">User Role</label>
+            <select class="form-select" id="userRole" required>
+              <option value="" selected disabled>Select role</option>
+              <option value="farmer">Farmer</option>
+              <option value="buyer">Buyer</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="userName" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="userName" required>
+          </div>
+          <div class="mb-3">
+            <label for="userUsername" class="form-label">Username</label>
+            <input type="text" class="form-control" id="userUsername" required>
+          </div>
+          <div class="mb-3">
+            <label for="userEmail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="userEmail" required>
+          </div>
+          <div class="mb-3">
+            <label for="userPassword" class="form-label">Password</label>
+            <input type="password" class="form-control" id="userPassword" required>
+          </div>
+          <div id="farmerFields" style="display: none;">
+            <div class="mb-3">
+              <label for="farmerLocation" class="form-label">Location</label>
+              <input type="text" class="form-control" id="farmerLocation">
+            </div>
+            <div class="mb-3">
+              <label for="farmerCrops" class="form-label">Main Crops</label>
+              <input type="text" class="form-control" id="farmerCrops" placeholder="Separate with commas">
+            </div>
+          </div>
+          <div id="buyerFields" style="display: none;">
+            <div class="mb-3">
+              <label for="buyerBusiness" class="form-label">Business Name</label>
+              <input type="text" class="form-control" id="buyerBusiness">
+            </div>
+            <div class="mb-3">
+              <label for="buyerType" class="form-label">Business Type</label>
+              <select class="form-select" id="buyerType">
+                <option value="retailer">Retailer</option>
+                <option value="wholesaler">Wholesaler</option>
+                <option value="processor">Processor</option>
+                <option value="exporter">Exporter</option>
+              </select>
+            </div>
+          </div>
+          <div id="adminFields" style="display: none;">
+            <div class="mb-3">
+              <label for="adminRole" class="form-label">Admin Role</label>
+              <select class="form-select" id="adminRole">
+                <option value="super_admin">Super Admin</option>
+                <option value="content_admin">Content Admin</option>
+                <option value="user_admin">User Admin</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveUserBtn">Save User</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editUserForm">
+          <input type="hidden" id="editUserId">
+          <input type="hidden" id="editUserRole">
+          <div class="mb-3">
+            <label for="editUserName" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="editUserName" required>
+          </div>
+          <div class="mb-3">
+            <label for="editUserUsername" class="form-label">Username</label>
+            <input type="text" class="form-control" id="editUserUsername" required>
+          </div>
+          <div class="mb-3">
+            <label for="editUserEmail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="editUserEmail" required>
+          </div>
+          <div class="mb-3">
+            <label for="editUserStatus" class="form-label">Status</label>
+            <select class="form-select" id="editUserStatus">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="suspended">Suspended</option>
+            </select>
+          </div>
+          <div id="editFarmerFields" style="display: none;">
+            <div class="mb-3">
+              <label for="editFarmerLocation" class="form-label">Location</label>
+              <input type="text" class="form-control" id="editFarmerLocation">
+            </div>
+            <div class="mb-3">
+              <label for="editFarmerCrops" class="form-label">Main Crops</label>
+              <input type="text" class="form-control" id="editFarmerCrops" placeholder="Separate with commas">
+            </div>
+          </div>
+          <div id="editBuyerFields" style="display: none;">
+            <div class="mb-3">
+              <label for="editBuyerBusiness" class="form-label">Business Name</label>
+              <input type="text" class="form-control" id="editBuyerBusiness">
+            </div>
+            <div class="mb-3">
+              <label for="editBuyerType" class="form-label">Business Type</label>
+              <select class="form-select" id="editBuyerType">
+                <option value="retailer">Retailer</option>
+                <option value="wholesaler">Wholesaler</option>
+                <option value="processor">Processor</option>
+                <option value="exporter">Exporter</option>
+              </select>
+            </div>
+          </div>
+          <div id="editAdminFields" style="display: none;">
+            <div class="mb-3">
+              <label for="editAdminRole" class="form-label">Admin Role</label>
+              <select class="form-select" id="editAdminRole">
+                <option value="super_admin">Super Admin</option>
+                <option value="content_admin">Content Admin</option>
+                <option value="user_admin">User Admin</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="updateUserBtn">Update User</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View User Modal -->
+<div class="modal fade" id="viewUserModal" tabindex="-1" aria-labelledby="viewUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewUserModalLabel">User Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-4 text-center mb-3">
+            <div class="avatar-container mb-3">
+              <i class="fas fa-user-circle fa-6x text-primary"></i>
+            </div>
+            <h5 id="viewUserName">User Name</h5>
+            <span class="badge bg-primary" id="viewUserRole">Role</span>
+            <span class="badge bg-success" id="viewUserStatus">Status</span>
+          </div>
+          <div class="col-md-8">
+            <div class="row mb-2">
+              <div class="col-md-4 fw-bold">Username:</div>
+              <div class="col-md-8" id="viewUserUsername"></div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-md-4 fw-bold">Email:</div>
+              <div class="col-md-8" id="viewUserEmail"></div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-md-4 fw-bold">Joined:</div>
+              <div class="col-md-8" id="viewUserJoined"></div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-md-4 fw-bold">Last Login:</div>
+              <div class="col-md-8" id="viewUserLastLogin"></div>
+            </div>
+            
+            <!-- Role-specific fields -->
+            <div id="viewFarmerFields" style="display: none;">
+              <hr>
+              <h6 class="mb-3">Farmer Details</h6>
+              <div class="row mb-2">
+                <div class="col-md-4 fw-bold">Location:</div>
+                <div class="col-md-8" id="viewFarmerLocation"></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-4 fw-bold">Main Crops:</div>
+                <div class="col-md-8" id="viewFarmerCrops"></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-4 fw-bold">Total Inventory:</div>
+                <div class="col-md-8" id="viewFarmerInventory"></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-4 fw-bold">Total Sales:</div>
+                <div class="col-md-8" id="viewFarmerSales"></div>
+              </div>
+            </div>
+            
+            <div id="viewBuyerFields" style="display: none;">
+              <hr>
+              <h6 class="mb-3">Buyer Details</h6>
+              <div class="row mb-2">
+                <div class="col-md-4 fw-bold">Business:</div>
+                <div class="col-md-8" id="viewBuyerBusiness"></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-4 fw-bold">Business Type:</div>
+                <div class="col-md-8" id="viewBuyerType"></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-4 fw-bold">Total Purchases:</div>
+                <div class="col-md-8" id="viewBuyerPurchases"></div>
+              </div>
+            </div>
+            
+            <div id="viewAdminFields" style="display: none;">
+              <hr>
+              <h6 class="mb-3">Admin Details</h6>
+              <div class="row mb-2">
+                <div class="col-md-4 fw-bold">Admin Role:</div>
+                <div class="col-md-8" id="viewAdminRole"></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-4 fw-bold">Permissions:</div>
+                <div class="col-md-8" id="viewAdminPermissions"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="editUserBtn">Edit User</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Show/hide role-specific fields in add user form
+    document.getElementById('userRole').addEventListener('change', function() {
+      const role = this.value;
+      document.getElementById('farmerFields').style.display = role === 'farmer' ? 'block' : 'none';
+      document.getElementById('buyerFields').style.display = role === 'buyer' ? 'block' : 'none';
+      document.getElementById('adminFields').style.display = role === 'admin' ? 'block' : 'none';
+    });
+    
+    // Load all users on page load
+    loadAllUsers();
+    
+    // Tab change handlers
+    document.getElementById('farmers-tab').addEventListener('click', loadFarmers);
+    document.getElementById('buyers-tab').addEventListener('click', loadBuyers);
+    document.getElementById('admins-tab').addEventListener('click', loadAdmins);
+    
+    // Save user button handler
+    document.getElementById('saveUserBtn').addEventListener('click', saveUser);
+    
+    // Update user button handler
+    document.getElementById('updateUserBtn').addEventListener('click', updateUser);
+    
+    // Edit user button handler
+    document.getElementById('editUserBtn').addEventListener('click', function() {
+      const userId = document.getElementById('viewUserId').value;
+      $('#viewUserModal').modal('hide');
+      openEditUserModal(userId);
+    });
+    
+    // Export users button handler
+    document.getElementById('exportUsersBtn').addEventListener('click', exportUsers);
+  });
+  
+  // Function to load all users
+  async function loadAllUsers() {
+    try {
+      const response = await fetch('/admin/api/users');
+      const users = await response.json();
+      
+      const tableBody = document.getElementById('allUsersList');
+      tableBody.innerHTML = '';
+      
+      users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${user.name}</td>
+          <td>${user.username}</td>
+          <td>${user.email || '-'}</td>
+          <td><span class="badge bg-${getRoleBadgeColor(user.role)}">${user.role}</span></td>
+          <td><span class="badge bg-${getStatusBadgeColor(user.status)}">${user.status || 'active'}</span></td>
+          <td>
+            <button class="btn btn-sm btn-info" onclick="viewUser('${user._id}')">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-primary" onclick="openEditUserModal('${user._id}')">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteUser('${user._id}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+      
+      document.getElementById('allUsersShowing').textContent = users.length;
+      document.getElementById('allUsersTotal').textContent = users.length;
+    } catch (error) {
+      console.error('Error loading users:', error);
+      alert('Failed to load users. Please try again.');
+    }
+  }
+  
+  // Function to load farmers
+  async function loadFarmers() {
+    try {
+      const response = await fetch('/admin/api/farmers');
+      const farmers = await response.json();
+      
+      const tableBody = document.getElementById('farmersList');
+      tableBody.innerHTML = '';
+      
+      farmers.forEach(farmer => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${farmer.name}</td>
+          <td>${farmer.username}</td>
+          <td>${farmer.location || '-'}</td>
+          <td>${farmer.crops?.join(', ') || '-'}</td>
+          <td><span class="badge bg-${getStatusBadgeColor(farmer.status)}">${farmer.status || 'active'}</span></td>
+          <td>
+            <button class="btn btn-sm btn-info" onclick="viewUser('${farmer._id}', 'farmer')">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-primary" onclick="openEditUserModal('${farmer._id}', 'farmer')">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteUser('${farmer._id}', 'farmer')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+      
+      document.getElementById('farmersShowing').textContent = farmers.length;
+      document.getElementById('farmersTotal').textContent = farmers.length;
+    } catch (error) {
+      console.error('Error loading farmers:', error);
+      alert('Failed to load farmers. Please try again.');
+    }
+  }
+  
+  // Function to load buyers
+  async function loadBuyers() {
+    try {
+      const response = await fetch('/admin/api/buyers');
+      const buyers = await response.json();
+      
+      const tableBody = document.getElementById('buyersList');
+      tableBody.innerHTML = '';
+      
+      buyers.forEach(buyer => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${buyer.name}</td>
+          <td>${buyer.username}</td>
+          <td>${buyer.email || '-'}</td>
+          <td>${buyer.business || '-'}</td>
+          <td><span class="badge bg-${getStatusBadgeColor(buyer.status)}">${buyer.status || 'active'}</span></td>
+          <td>
+            <button class="btn btn-sm btn-info" onclick="viewUser('${buyer._id}', 'buyer')">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-primary" onclick="openEditUserModal('${buyer._id}', 'buyer')">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteUser('${buyer._id}', 'buyer')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+      
+      document.getElementById('buyersShowing').textContent = buyers.length;
+      document.getElementById('buyersTotal').textContent = buyers.length;
+    } catch (error) {
+      console.error('Error loading buyers:', error);
+      alert('Failed to load buyers. Please try again.');
+    }
+  }
+  
+  // Function to load admins
+  async function loadAdmins() {
+    try {
+      const response = await fetch('/admin/api/admins');
+      const admins = await response.json();
+      
+      const tableBody = document.getElementById('adminsList');
+      tableBody.innerHTML = '';
+      
+      admins.forEach(admin => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${admin.name}</td>
+          <td>${admin.username}</td>
+          <td>${admin.email || '-'}</td>
+          <td>${admin.adminRole || 'Standard'}</td>
+          <td><span class="badge bg-${getStatusBadgeColor(admin.status)}">${admin.status || 'active'}</span></td>
+          <td>
+            <button class="btn btn-sm btn-info" onclick="viewUser('${admin._id}', 'admin')">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-primary" onclick="openEditUserModal('${admin._id}', 'admin')">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteUser('${admin._id}', 'admin')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+      
+      document.getElementById('adminsShowing').textContent = admins.length;
+      document.getElementById('adminsTotal').textContent = admins.length;
+    } catch (error) {
+      console.error('Error loading admins:', error);
+      alert('Failed to load admins. Please try again.');
+    }
+  }
+  
+  // Function to view user details
+  async function viewUser(id, role = null) {
+    try {
+      const response = await fetch(`/admin/api/users/${id}`);
+      const user = await response.json();
+      
+      // Set user details in the modal
+      document.getElementById('viewUserName').textContent = user.name;
+      document.getElementById('viewUserRole').textContent = user.role || role;
+      document.getElementById('viewUserRole').className = `badge bg-${getRoleBadgeColor(user.role || role)}`;
+      document.getElementById('viewUserStatus').textContent = user.status || 'active';
+      document.getElementById('viewUserStatus').className = `badge bg-${getStatusBadgeColor(user.status || 'active')}`;
+      document.getElementById('viewUserUsername').textContent = user.username;
+      document.getElementById('viewUserEmail').textContent = user.email || '-';
+      document.getElementById('viewUserJoined').textContent = new Date(user.createdAt).toLocaleDateString();
+      document.getElementById('viewUserLastLogin').textContent = user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never';
+      
+      // Hide all role-specific fields
+      document.getElementById('viewFarmerFields').style.display = 'none';
+      document.getElementById('viewBuyerFields').style.display = 'none';
+      document.getElementById('viewAdminFields').style.display = 'none';
+      
+      // Show role-specific fields based on user role
+      const userRole = user.role || role;
+      if (userRole === 'farmer') {
+        document.getElementById('viewFarmerFields').style.display = 'block';
+        document.getElementById('viewFarmerLocation').textContent = user.location || '-';
+        document.getElementById('viewFarmerCrops').textContent = user.crops?.join(', ') || '-';
+        document.getElementById('viewFarmerInventory').textContent = user.inventoryCount || '0 items';
+        document.getElementById('viewFarmerSales').textContent = user.salesCount ? `${user.salesCount} (₹${user.salesAmount || 0})` : '0';
+      } else if (userRole === 'buyer') {
+        document.getElementById('viewBuyerFields').style.display = 'block';
+        document.getElementById('viewBuyerBusiness').textContent = user.business || '-';
+        document.getElementById('viewBuyerType').textContent = user.businessType || '-';
+        document.getElementById('viewBuyerPurchases').textContent = user.purchasesCount ? `${user.purchasesCount} (₹${user.purchasesAmount || 0})` : '0';
+      } else if (userRole === 'admin') {
+        document.getElementById('viewAdminFields').style.display = 'block';
+        document.getElementById('viewAdminRole').textContent = user.adminRole || 'Standard';
+        document.getElementById('viewAdminPermissions').textContent = user.permissions?.join(', ') || 'All permissions';
+      }
+      
+      // Store user ID for edit button
+      document.getElementById('viewUserId').value = user._id;
+      
+      // Show the modal
+      $('#viewUserModal').modal('show');
+    } catch (error) {
+      console.error('Error viewing user:', error);
+      alert('Failed to load user details. Please try again.');
+    }
+  }
+  
+  // Function to open edit user modal
+  async function openEditUserModal(id, role = null) {
+    try {
+      const response = await fetch(`/admin/api/users/${id}`);
+      const user = await response.json();
+      
+      // Set user details in the form
+      document.getElementById('editUserId').value = user._id;
+      document.getElementById('editUserRole').value = user.role || role;
+      document.getElementById('editUserName').value = user.name;
+      document.getElementById('editUserUsername').value = user.username;
+      document.getElementById('editUserEmail').value = user.email || '';
+      document.getElementById('editUserStatus').value = user.status || 'active';
+      
+      // Hide all role-specific fields
+      document.getElementById('editFarmerFields').style.display = 'none';
+      document.getElementById('editBuyerFields').style.display = 'none';
+      document.getElementById('editAdminFields').style.display = 'none';
+      
+      // Show role-specific fields based on user role
+      const userRole = user.role || role;
+      if (userRole === 'farmer') {
+        document.getElementById('editFarmerFields').style.display = 'block';
+        document.getElementById('editFarmerLocation').value = user.location || '';
+        document.getElementById('editFarmerCrops').value = user.crops?.join(', ') || '';
+      } else if (userRole === 'buyer') {
+        document.getElementById('editBuyerFields').style.display = 'block';
+        document.getElementById('editBuyerBusiness').value = user.business || '';
+        document.getElementById('editBuyerType').value = user.businessType || 'retailer';
+      } else if (userRole === 'admin') {
+        document.getElementById('editAdminFields').style.display = 'block';
+        document.getElementById('editAdminRole').value = user.adminRole || 'standard';
+      }
+      
+      // Show the modal
+      $('#editUserModal').modal('show');
+    } catch (error) {
+      console.error('Error opening edit user modal:', error);
+      alert('Failed to load user details for editing. Please try again.');
+    }
+  }
+  
+  // Function to save new user
+  async function saveUser() {
+    try {
+      const role = document.getElementById('userRole').value;
+      
+      // Prepare user data based on role
+      const userData = {
+        name: document.getElementById('userName').value,
+        username: document.getElementById('userUsername').value,
+        email: document.getElementById('userEmail').value,
+        password: document.getElementById('userPassword').value,
+        role: role
+      };
+      
+      // Add role-specific fields
+      if (role === 'farmer') {
+        userData.location = document.getElementById('farmerLocation').value;
+        userData.crops = document.getElementById('farmerCrops').value.split(',').map(crop => crop.trim());
+      } else if (role === 'buyer') {
+        userData.business = document.getElementById('buyerBusiness').value;
+        userData.businessType = document.getElementById('buyerType').value;
+      } else if (role === 'admin') {
+        userData.adminRole = document.getElementById('adminRole').value;
+      }
+      
+      // Send request to create user
+      const response = await fetch('/admin/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        alert('User created successfully');
+        $('#addUserModal').modal('hide');
+        document.getElementById('addUserForm').reset();
+        
+        // Reload users based on current tab
+        const activeTab = document.querySelector('#userTabs .nav-link.active').getAttribute('id');
+        if (activeTab === 'all-tab') {
+          loadAllUsers();
+        } else if (activeTab === 'farmers-tab') {
+          loadFarmers();
+        } else if (activeTab === 'buyers-tab') {
+          loadBuyers();
+        } else if (activeTab === 'admins-tab') {
+          loadAdmins();
+        }
+      } else {
+        alert(result.message || 'Failed to create user');
+      }
+    } catch (error) {
+      console.error('Error creating user:', error);
+      alert('Failed to create user. Please try again.');
+    }
+  }
+  
+  // Function to update user
+  async function updateUser() {
+    try {
+      const id = document.getElementById('editUserId').value;
+      const role = document.getElementById('editUserRole').value;
+      
+      // Prepare user data based on role
+      const userData = {
+        name: document.getElementById('editUserName').value,
+        username: document.getElementById('editUserUsername').value,
+        email: document.getElementById('editUserEmail').value,
+        status: document.getElementById('editUserStatus').value,
+        role: role
+      };
+      
+      // Add role-specific fields
+      if (role === 'farmer') {
+        userData.location = document.getElementById('editFarmerLocation').value;
+        userData.crops = document.getElementById('editFarmerCrops').value.split(',').map(crop => crop.trim());
+      } else if (role === 'buyer') {
+        userData.business = document.getElementById('editBuyerBusiness').value;
+        userData.businessType = document.getElementById('editBuyerType').value;
+      } else if (role === 'admin') {
+        userData.adminRole = document.getElementById('editAdminRole').value;
+      }
+      
+      // Send request to update user
+      const response = await fetch(`/admin/api/users/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        alert('User updated successfully');
+        $('#editUserModal').modal('hide');
+        
+        // Reload users based on current tab
+        const activeTab = document.querySelector('#userTabs .nav-link.active').getAttribute('id');
+        if (activeTab === 'all-tab') {
+          loadAllUsers();
+        } else if (activeTab === 'farmers-tab') {
+          loadFarmers();
+        } else if (activeTab === 'buyers-tab') {
+          loadBuyers();
+        } else if (activeTab === 'admins-tab') {
+          loadAdmins();
+        }
+      } else {
+        alert(result.message || 'Failed to update user');
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      alert('Failed to update user. Please try again.');
+    }
+  }
+  
+  // Function to delete user
+  async function deleteUser(id, role = null) {
+    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      try {
+        let endpoint = `/admin/api/users/${id}`;
+        
+        // Use role-specific endpoint if provided
+        if (role === 'farmer') {
+          endpoint = `/admin/api/farmers/${id}`;
+        } else if (role === 'buyer') {
+          endpoint = `/admin/api/buyers/${id}`;
+        } else if (role === 'admin') {
+          endpoint = `/admin/api/admins/${id}`;
+        }
+        
+        const response = await fetch(endpoint, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('User deleted successfully');
+          
+          // Reload users based on current tab
+          const activeTab = document.querySelector('#userTabs .nav-link.active').getAttribute('id');
+          if (activeTab === 'all-tab') {
+            loadAllUsers();
+          } else if (activeTab === 'farmers-tab') {
+            loadFarmers();
+          } else if (activeTab === 'buyers-tab') {
+            loadBuyers();
+          } else if (activeTab === 'admins-tab') {
+            loadAdmins();
+          }
+        } else {
+          alert(result.message || 'Failed to delete user');
+        }
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        alert('Failed to delete user. Please try again.');
+      }
+    }
+  }
+  
+  // Function to export users
+  async function exportUsers() {
+    try {
+      const activeTab = document.querySelector('#userTabs .nav-link.active').getAttribute('id');
+      let endpoint = '/admin/api/users/export';
+      
+      // Use tab-specific endpoint
+      if (activeTab === 'farmers-tab') {
+        endpoint = '/admin/api/farmers/export';
+      } else if (activeTab === 'buyers-tab') {
+        endpoint = '/admin/api/buyers/export';
+      } else if (activeTab === 'admins-tab') {
+        endpoint = '/admin/api/admins/export';
+      }
+      
+      window.location.href = endpoint;
+    } catch (error) {
+      console.error('Error exporting users:', error);
+      alert('Failed to export users. Please try again.');
+    }
+  }
+  
+  // Helper function to get role badge color
+  function getRoleBadgeColor(role) {
+    switch (role) {
+      case 'admin':
+        return 'danger';
+      case 'farmer':
+        return 'success';
+      case 'buyer':
+        return 'info';
+      default:
+        return 'secondary';
+    }
+  }
+  
+  // Helper function to get status badge color
+  function getStatusBadgeColor(status) {
+    switch (status) {
+      case 'active':
+        return 'success';
+      case 'inactive':
+        return 'secondary';
+      case 'suspended':
+        return 'warning';
+      default:
+        return 'success';
+    }
+  }
+  
+  // Add hidden input for view user ID
+  document.body.insertAdjacentHTML('beforeend', '<input type="hidden" id="viewUserId">');
+</script>

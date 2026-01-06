@@ -1,0 +1,737 @@
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">
+                            <i class="bi bi-people me-2"></i>Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/crops">
+                            <i class="bi bi-flower1 me-2"></i>Crops
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/requests">
+                            <i class="bi bi-question-circle me-2"></i>Requests
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/analytics">
+                            <i class="bi bi-graph-up me-2"></i>Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/settings">
+                            <i class="bi bi-gear me-2"></i>Settings
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Analytics Dashboard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="exportReportBtn">
+                            <i class="bi bi-download me-1"></i>Export Report
+                        </button>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="timeRangeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-calendar3 me-1"></i>
+                            <span id="selectedTimeRange">Last 30 Days</span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="timeRangeDropdown">
+                            <li><a class="dropdown-item time-range" href="#" data-range="7">Last 7 Days</a></li>
+                            <li><a class="dropdown-item time-range" href="#" data-range="30">Last 30 Days</a></li>
+                            <li><a class="dropdown-item time-range" href="#" data-range="90">Last 90 Days</a></li>
+                            <li><a class="dropdown-item time-range" href="#" data-range="365">Last Year</a></li>
+                            <li><a class="dropdown-item time-range" href="#" data-range="all">All Time</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overview Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Total Users</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalUsersCount">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-people-fill fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Total Transactions</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalTransactionsCount">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-currency-exchange fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Crop Recommendations</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalRecommendationsCount">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-flower1 fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Chatbot Queries</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalChatbotQueriesCount">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-chat-dots-fill fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row mb-4">
+                <div class="col-lg-8 mb-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">User Activity Over Time</h6>
+                            <div class="dropdown no-arrow">
+                                <a class="dropdown-toggle" href="#" role="button" id="userActivityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userActivityDropdown">
+                                    <li><a class="dropdown-item chart-type" href="#" data-type="registrations">New Registrations</a></li>
+                                    <li><a class="dropdown-item chart-type" href="#" data-type="logins">User Logins</a></li>
+                                    <li><a class="dropdown-item chart-type" href="#" data-type="transactions">Transactions</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-area">
+                                <canvas id="userActivityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">User Distribution</h6>
+                            <div class="dropdown no-arrow">
+                                <a class="dropdown-toggle" href="#" role="button" id="userDistributionDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDistributionDropdown">
+                                    <li><a class="dropdown-item distribution-type" href="#" data-type="role">By Role</a></li>
+                                    <li><a class="dropdown-item distribution-type" href="#" data-type="location">By Location</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-pie pt-4 pb-2">
+                                <canvas id="userDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crop Analytics Row -->
+            <div class="row mb-4">
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Top Recommended Crops</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-bar">
+                                <canvas id="topCropsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Recommendation Success Rate</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-pie pt-4 pb-2">
+                                <canvas id="recommendationSuccessChart"></canvas>
+                            </div>
+                            <div class="mt-4 text-center small">
+                                <span class="mr-2">
+                                    <i class="bi bi-circle-fill text-success"></i> Successful
+                                </span>
+                                <span class="mr-2">
+                                    <i class="bi bi-circle-fill text-warning"></i> Neutral
+                                </span>
+                                <span class="mr-2">
+                                    <i class="bi bi-circle-fill text-danger"></i> Unsuccessful
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chatbot Analytics Row -->
+            <div class="row mb-4">
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Top Chatbot Topics</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="topChatbotTopicsTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Topic</th>
+                                            <th>Query Count</th>
+                                            <th>Avg. Satisfaction</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="topChatbotTopicsBody">
+                                        <!-- Data will be loaded dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Chatbot Performance</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-area">
+                                <canvas id="chatbotPerformanceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Regional Analytics -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Regional Analytics</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="regionalMap" style="height: 400px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Include Leaflet for maps -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+<script>
+    // Global variables
+    let currentTimeRange = 30; // Default to 30 days
+    let userActivityChart;
+    let userDistributionChart;
+    let topCropsChart;
+    let recommendationSuccessChart;
+    let chatbotPerformanceChart;
+    let regionalMap;
+
+    // Document ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize charts
+        initializeCharts();
+        
+        // Load initial data
+        loadAnalyticsData(currentTimeRange);
+        
+        // Event listeners
+        document.querySelectorAll('.time-range').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const range = this.dataset.range;
+                document.getElementById('selectedTimeRange').textContent = this.textContent;
+                currentTimeRange = range === 'all' ? 'all' : parseInt(range);
+                loadAnalyticsData(currentTimeRange);
+            });
+        });
+        
+        document.querySelectorAll('.chart-type').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                updateUserActivityChart(this.dataset.type);
+            });
+        });
+        
+        document.querySelectorAll('.distribution-type').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                updateUserDistributionChart(this.dataset.type);
+            });
+        });
+        
+        document.getElementById('exportReportBtn').addEventListener('click', exportAnalyticsReport);
+    });
+
+    // Initialize charts
+    function initializeCharts() {
+        // User Activity Chart
+        const userActivityCtx = document.getElementById('userActivityChart').getContext('2d');
+        userActivityChart = new Chart(userActivityCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'User Activity',
+                    data: [],
+                    backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    pointBorderColor: 'rgba(78, 115, 223, 1)',
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // User Distribution Chart
+        const userDistributionCtx = document.getElementById('userDistributionChart').getContext('2d');
+        userDistributionChart = new Chart(userDistributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Farmers', 'Buyers', 'Admins'],
+                datasets: [{
+                    data: [0, 0, 0],
+                    backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc'],
+                    hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
+                    hoverBorderColor: 'rgba(234, 236, 244, 1)',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+
+        // Top Crops Chart
+        const topCropsCtx = document.getElementById('topCropsChart').getContext('2d');
+        topCropsChart = new Chart(topCropsCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Recommendation Count',
+                    data: [],
+                    backgroundColor: '#4e73df',
+                    borderColor: '#4e73df',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Recommendation Success Chart
+        const recommendationSuccessCtx = document.getElementById('recommendationSuccessChart').getContext('2d');
+        recommendationSuccessChart = new Chart(recommendationSuccessCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Successful', 'Neutral', 'Unsuccessful'],
+                datasets: [{
+                    data: [0, 0, 0],
+                    backgroundColor: ['#1cc88a', '#f6c23e', '#e74a3b'],
+                    hoverBackgroundColor: ['#17a673', '#dda20a', '#be2617'],
+                    hoverBorderColor: 'rgba(234, 236, 244, 1)',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+
+        // Chatbot Performance Chart
+        const chatbotPerformanceCtx = document.getElementById('chatbotPerformanceChart').getContext('2d');
+        chatbotPerformanceChart = new Chart(chatbotPerformanceCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Response Time (ms)',
+                    data: [],
+                    borderColor: '#4e73df',
+                    backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    pointBorderColor: 'rgba(78, 115, 223, 1)',
+                    pointHoverRadius: 5,
+                    tension: 0.3
+                }, {
+                    label: 'Satisfaction Score',
+                    data: [],
+                    borderColor: '#1cc88a',
+                    backgroundColor: 'rgba(28, 200, 138, 0.05)',
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgba(28, 200, 138, 1)',
+                    pointBorderColor: 'rgba(28, 200, 138, 1)',
+                    pointHoverRadius: 5,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Initialize Regional Map
+        regionalMap = L.map('regionalMap').setView([20.5937, 78.9629], 5); // Center on India
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(regionalMap);
+    }
+
+    // Load analytics data
+    function loadAnalyticsData(timeRange) {
+        // Show loading state
+        showLoading();
+        
+        // Fetch data from API
+        fetch(`/admin/api/analytics?timeRange=${timeRange}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load analytics data');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Update overview cards
+                updateOverviewCards(data.overview);
+                
+                // Update charts
+                updateUserActivityChart('registrations', data.userActivity);
+                updateUserDistributionChart('role', data.userDistribution);
+                updateTopCropsChart(data.topCrops);
+                updateRecommendationSuccessChart(data.recommendationSuccess);
+                updateChatbotPerformanceChart(data.chatbotPerformance);
+                updateTopChatbotTopicsTable(data.topChatbotTopics);
+                updateRegionalMap(data.regionalData);
+                
+                // Hide loading state
+                hideLoading();
+            })
+            .catch(error => {
+                console.error('Error loading analytics data:', error);
+                showAlert('Failed to load analytics data. Please try again.', 'danger');
+                hideLoading();
+            });
+    }
+
+    // Update overview cards
+    function updateOverviewCards(data) {
+        document.getElementById('totalUsersCount').textContent = data.totalUsers.toLocaleString();
+        document.getElementById('totalTransactionsCount').textContent = data.totalTransactions.toLocaleString();
+        document.getElementById('totalRecommendationsCount').textContent = data.totalRecommendations.toLocaleString();
+        document.getElementById('totalChatbotQueriesCount').textContent = data.totalChatbotQueries.toLocaleString();
+    }
+
+    // Update user activity chart
+    function updateUserActivityChart(type, data) {
+        if (!data || !data[type]) {
+            return;
+        }
+        
+        userActivityChart.data.labels = data[type].labels;
+        userActivityChart.data.datasets[0].data = data[type].data;
+        
+        switch (type) {
+            case 'registrations':
+                userActivityChart.data.datasets[0].label = 'New Registrations';
+                userActivityChart.data.datasets[0].borderColor = 'rgba(78, 115, 223, 1)';
+                userActivityChart.data.datasets[0].backgroundColor = 'rgba(78, 115, 223, 0.05)';
+                break;
+            case 'logins':
+                userActivityChart.data.datasets[0].label = 'User Logins';
+                userActivityChart.data.datasets[0].borderColor = 'rgba(28, 200, 138, 1)';
+                userActivityChart.data.datasets[0].backgroundColor = 'rgba(28, 200, 138, 0.05)';
+                break;
+            case 'transactions':
+                userActivityChart.data.datasets[0].label = 'Transactions';
+                userActivityChart.data.datasets[0].borderColor = 'rgba(246, 194, 62, 1)';
+                userActivityChart.data.datasets[0].backgroundColor = 'rgba(246, 194, 62, 0.05)';
+                break;
+        }
+        
+        userActivityChart.update();
+    }
+
+    // Update user distribution chart
+    function updateUserDistributionChart(type, data) {
+        if (!data || !data[type]) {
+            return;
+        }
+        
+        userDistributionChart.data.labels = data[type].labels;
+        userDistributionChart.data.datasets[0].data = data[type].data;
+        
+        if (type === 'location') {
+            userDistributionChart.data.datasets[0].backgroundColor = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'];
+            userDistributionChart.data.datasets[0].hoverBackgroundColor = ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617'];
+        } else {
+            userDistributionChart.data.datasets[0].backgroundColor = ['#4e73df', '#1cc88a', '#36b9cc'];
+            userDistributionChart.data.datasets[0].hoverBackgroundColor = ['#2e59d9', '#17a673', '#2c9faf'];
+        }
+        
+        userDistributionChart.update();
+    }
+
+    // Update top crops chart
+    function updateTopCropsChart(data) {
+        if (!data) {
+            return;
+        }
+        
+        topCropsChart.data.labels = data.labels;
+        topCropsChart.data.datasets[0].data = data.data;
+        topCropsChart.update();
+    }
+
+    // Update recommendation success chart
+    function updateRecommendationSuccessChart(data) {
+        if (!data) {
+            return;
+        }
+        
+        recommendationSuccessChart.data.labels = data.labels;
+        recommendationSuccessChart.data.datasets[0].data = data.data;
+        recommendationSuccessChart.update();
+    }
+
+    // Update chatbot performance chart
+    function updateChatbotPerformanceChart(data) {
+        if (!data) {
+            return;
+        }
+        
+        chatbotPerformanceChart.data.labels = data.labels;
+        chatbotPerformanceChart.data.datasets[0].data = data.responseTime;
+        chatbotPerformanceChart.data.datasets[1].data = data.satisfactionScore;
+        chatbotPerformanceChart.update();
+    }
+
+    // Update top chatbot topics table
+    function updateTopChatbotTopicsTable(data) {
+        if (!data) {
+            return;
+        }
+        
+        const tableBody = document.getElementById('topChatbotTopicsBody');
+        tableBody.innerHTML = '';
+        
+        data.forEach(topic => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${topic.topic}</td>
+                <td>${topic.count.toLocaleString()}</td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <span class="mr-2">${topic.satisfaction.toFixed(1)}</span>
+                        <div class="progress" style="height: 8px; width: 100px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: ${(topic.satisfaction / 5) * 100}%" 
+                                aria-valuenow="${topic.satisfaction}" aria-valuemin="0" aria-valuemax="5"></div>
+                        </div>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    // Update regional map
+    function updateRegionalMap(data) {
+        if (!data) {
+            return;
+        }
+        
+        // Clear existing markers
+        regionalMap.eachLayer(layer => {
+            if (layer instanceof L.Marker) {
+                regionalMap.removeLayer(layer);
+            }
+        });
+        
+        // Add new markers
+        data.forEach(region => {
+            const marker = L.marker([region.lat, region.lng]).addTo(regionalMap);
+            marker.bindPopup(`
+                <strong>${region.name}</strong><br>
+                Users: ${region.userCount}<br>
+                Crops: ${region.cropCount}
+            `);
+        });
+    }
+
+    // Export analytics report
+    function exportAnalyticsReport() {
+        // In a real implementation, this would generate a PDF or CSV report
+        alert('Analytics report export functionality would be implemented here.');
+    }
+
+    // Show loading state
+    function showLoading() {
+        // Implement loading indicator
+    }
+
+    // Hide loading state
+    function hideLoading() {
+        // Hide loading indicator
+    }
+
+    // Show alert
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.setAttribute('role', 'alert');
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        document.querySelector('.container-fluid').prepend(alertDiv);
+        
+        // Auto dismiss after 5 seconds
+        setTimeout(() => {
+            alertDiv.classList.remove('show');
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 150);
+        }, 5000);
+    }
+</script>

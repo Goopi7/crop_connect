@@ -1,0 +1,1010 @@
+<!-- NOTE: Do NOT include the layout here. The route should set { layout: 'layout/boilerplate' } -->
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <aside class="col-md-3 col-lg-2 d-none d-md-block bg-light sidebar border-end" aria-label="Admin navigation">
+      <div class="position-sticky pt-3">
+        <div class="text-center mb-4">
+          <h5 class="mb-1"><i class="fas fa-user-shield text-primary"></i> Admin Panel</h5>
+          <p class="text-muted small mb-1">Welcome, <%= (typeof adminName !== 'undefined' ? adminName : (currentUser && (currentUser.name || currentUser.username)) || 'admin') %></p>
+          <span class="badge bg-secondary"><%= (typeof adminRole !== 'undefined' ? adminRole : 'admin') %></span>
+        </div>
+
+        <nav>
+          <ul class="nav flex-column" id="admin-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/dashboard" data-path="/admin/dashboard">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/users" data-path="/admin/users">
+                <i class="fas fa-users"></i> Manage Users
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/admin/requests" data-path="/admin/requests">
+                <i class="fas fa-clipboard-list"></i> View Requests
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/analytics" data-path="/admin/analytics">
+                <i class="fas fa-chart-bar"></i> Analytics
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/settings" data-path="/admin/settings">
+                <i class="fas fa-cog"></i> Settings
+              </a>
+            </li>
+            <li class="nav-item mt-3">
+              <a class="nav-link text-danger" href="/logoutadmin">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="col-12 col-md-9 ms-sm-auto col-lg-10 px-md-4" id="main" tabindex="-1">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2 m-0"><i class="fas fa-clipboard-list"></i> Request Management</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="exportRequestsBtn">
+              <i class="fas fa-download"></i> Export CSV
+            </button>
+          </div>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-filter"></i> Filter
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+              <li><a class="dropdown-item" href="#" data-filter="all">All Requests</a></li>
+              <li><a class="dropdown-item" href="#" data-filter="chatbot">Chatbot Queries</a></li>
+              <li><a class="dropdown-item" href="#" data-filter="crop-recommendation">Crop Recommendations</a></li>
+              <li><a class="dropdown-item" href="#" data-filter="market">Market Requests</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" data-filter="resolved">Resolved</a></li>
+              <li><a class="dropdown-item" href="#" data-filter="pending">Pending</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Request Management Tabs -->
+      <ul class="nav nav-tabs mb-4" id="requestTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="all-requests-tab" data-bs-toggle="tab" data-bs-target="#all-requests" type="button" role="tab" aria-controls="all-requests" aria-selected="true">
+            All Requests
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="chatbot-tab" data-bs-toggle="tab" data-bs-target="#chatbot-queries" type="button" role="tab" aria-controls="chatbot-queries" aria-selected="false">
+            Chatbot Queries
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="crop-recommendations-tab" data-bs-toggle="tab" data-bs-target="#crop-recommendations" type="button" role="tab" aria-controls="crop-recommendations" aria-selected="false">
+            Crop Recommendations
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="market-tab" data-bs-toggle="tab" data-bs-target="#market-requests" type="button" role="tab" aria-controls="market-requests" aria-selected="false">
+            Market Requests
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="requestTabsContent">
+        <!-- All Requests Tab -->
+        <div class="tab-pane fade show active" id="all-requests" role="tabpanel" aria-labelledby="all-requests-tab">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 class="m-0 fw-bold text-primary">All User Requests</h6>
+              <div class="input-group w-50">
+                <input type="text" class="form-control" placeholder="Search requests..." id="searchAllRequests">
+                <button class="btn btn-outline-secondary" type="button">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="allRequestsTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Type</th>
+                      <th>User</th>
+                      <th>Content</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="allRequestsList">
+                    <!-- Will be populated by JavaScript -->
+                    <% if (typeof requests !== 'undefined' && requests.length > 0) { %>
+                      <% requests.forEach(request => { %>
+                        <tr>
+                          <td><%= request._id.toString().substring(0, 8) %>...</td>
+                          <td><span class="badge bg-<%= getRequestTypeBadge(request.type) %>"><%= request.type %></span></td>
+                          <td><%= request.user ? request.user.name : 'Anonymous' %></td>
+                          <td><%= request.content.length > 50 ? request.content.substring(0, 50) + '...' : request.content %></td>
+                          <td><%= new Date(request.createdAt).toLocaleString() %></td>
+                          <td><span class="badge bg-<%= request.resolved ? 'success' : 'warning' %>"><%= request.resolved ? 'Resolved' : 'Pending' %></span></td>
+                          <td>
+                            <button class="btn btn-sm btn-info" onclick="viewRequest('<%= request._id %>')">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-success" onclick="markResolved('<%= request._id %>')">
+                              <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteRequest('<%= request._id %>')">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="7" class="text-center">No requests found</td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+              <div id="allRequestsPagination" class="d-flex justify-content-between align-items-center mt-3">
+                <div class="dataTables_info">
+                  Showing <span id="allRequestsShowing">0</span> of <span id="allRequestsTotal">0</span> requests
+                </div>
+                <nav aria-label="Request pagination">
+                  <ul class="pagination pagination-sm mb-0">
+                    <!-- Will be populated by JavaScript -->
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chatbot Queries Tab -->
+        <div class="tab-pane fade" id="chatbot-queries" role="tabpanel" aria-labelledby="chatbot-tab">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 class="m-0 fw-bold text-primary">Chatbot Queries</h6>
+              <div class="input-group w-50">
+                <input type="text" class="form-control" placeholder="Search chatbot queries..." id="searchChatbotQueries">
+                <button class="btn btn-outline-secondary" type="button">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="chatbotQueriesTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>User</th>
+                      <th>Query</th>
+                      <th>Response</th>
+                      <th>Date</th>
+                      <th>Satisfaction</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="chatbotQueriesList">
+                    <!-- Will be populated by JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Crop Recommendations Tab -->
+        <div class="tab-pane fade" id="crop-recommendations" role="tabpanel" aria-labelledby="crop-recommendations-tab">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 class="m-0 fw-bold text-primary">Crop Recommendations</h6>
+              <div class="input-group w-50">
+                <input type="text" class="form-control" placeholder="Search crop recommendations..." id="searchCropRecommendations">
+                <button class="btn btn-outline-secondary" type="button">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="cropRecommendationsTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>User</th>
+                      <th>Location</th>
+                      <th>Soil Type</th>
+                      <th>Recommended Crops</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cropRecommendationsList">
+                    <!-- Will be populated by JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Market Requests Tab -->
+        <div class="tab-pane fade" id="market-requests" role="tabpanel" aria-labelledby="market-tab">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 class="m-0 fw-bold text-primary">Market Requests</h6>
+              <div class="input-group w-50">
+                <input type="text" class="form-control" placeholder="Search market requests..." id="searchMarketRequests">
+                <button class="btn btn-outline-secondary" type="button">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="marketRequestsTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Farmer</th>
+                      <th>Buyer</th>
+                      <th>Crop</th>
+                      <th>Quantity</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="marketRequestsList">
+                    <!-- Will be populated by JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- View Request Modal -->
+<div class="modal fade" id="viewRequestModal" tabindex="-1" aria-labelledby="viewRequestModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewRequestModalLabel">Request Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>Request ID:</strong>
+            <span id="requestId"></span>
+          </div>
+          <div class="col-md-6">
+            <strong>Type:</strong>
+            <span id="requestType" class="badge"></span>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>User:</strong>
+            <span id="requestUser"></span>
+          </div>
+          <div class="col-md-6">
+            <strong>Date:</strong>
+            <span id="requestDate"></span>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>Status:</strong>
+            <span id="requestStatus" class="badge"></span>
+          </div>
+          <div class="col-md-6">
+            <strong>IP Address:</strong>
+            <span id="requestIp"></span>
+          </div>
+        </div>
+        <hr>
+        <div class="mb-3">
+          <strong>Content:</strong>
+          <div id="requestContent" class="p-3 bg-light rounded mt-2"></div>
+        </div>
+        <div id="requestResponseContainer" class="mb-3">
+          <strong>Response:</strong>
+          <div id="requestResponse" class="p-3 bg-light rounded mt-2"></div>
+        </div>
+        <div id="requestMetadataContainer">
+          <strong>Additional Data:</strong>
+          <div id="requestMetadata" class="p-3 bg-light rounded mt-2">
+            <pre class="mb-0"></pre>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-success" id="markResolvedBtn">Mark as Resolved</button>
+        <button type="button" class="btn btn-danger" id="deleteRequestBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize counts
+    updateRequestCounts();
+    
+    // Load all requests on page load
+    loadAllRequests();
+    
+    // Tab change handlers
+    document.getElementById('chatbot-tab').addEventListener('click', loadChatbotQueries);
+    document.getElementById('crop-recommendations-tab').addEventListener('click', loadCropRecommendations);
+    document.getElementById('market-tab').addEventListener('click', loadMarketRequests);
+    
+    // Export button handler
+    document.getElementById('exportRequestsBtn').addEventListener('click', exportRequests);
+    
+    // Filter dropdown handlers
+    document.querySelectorAll('[data-filter]').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        const filter = this.getAttribute('data-filter');
+        filterRequests(filter);
+      });
+    });
+    
+    // Search handlers
+    document.getElementById('searchAllRequests').addEventListener('input', function() {
+      searchRequests(this.value, 'all');
+    });
+    
+    document.getElementById('searchChatbotQueries').addEventListener('input', function() {
+      searchRequests(this.value, 'chatbot');
+    });
+    
+    document.getElementById('searchCropRecommendations').addEventListener('input', function() {
+      searchRequests(this.value, 'crop-recommendation');
+    });
+    
+    document.getElementById('searchMarketRequests').addEventListener('input', function() {
+      searchRequests(this.value, 'market');
+    });
+    
+    // Modal action buttons
+    document.getElementById('markResolvedBtn').addEventListener('click', function() {
+      const requestId = document.getElementById('requestId').textContent;
+      markResolved(requestId);
+    });
+    
+    document.getElementById('deleteRequestBtn').addEventListener('click', function() {
+      const requestId = document.getElementById('requestId').textContent;
+      if (confirm('Are you sure you want to delete this request? This action cannot be undone.')) {
+        deleteRequest(requestId);
+      }
+    });
+  });
+  
+  // Function to update request counts
+  async function updateRequestCounts() {
+    try {
+      const response = await fetch('/admin/api/requests/counts');
+      const counts = await response.json();
+      
+      document.getElementById('allRequestsTotal').textContent = counts.total || 0;
+      document.getElementById('allRequestsShowing').textContent = counts.total || 0;
+      
+      // Update tab badges if they exist
+      if (document.getElementById('chatbot-count')) {
+        document.getElementById('chatbot-count').textContent = counts.chatbot || 0;
+      }
+      
+      if (document.getElementById('crop-recommendations-count')) {
+        document.getElementById('crop-recommendations-count').textContent = counts.cropRecommendation || 0;
+      }
+      
+      if (document.getElementById('market-count')) {
+        document.getElementById('market-count').textContent = counts.market || 0;
+      }
+    } catch (error) {
+      console.error('Error updating request counts:', error);
+    }
+  }
+  
+  // Function to load all requests
+  async function loadAllRequests() {
+    try {
+      const response = await fetch('/admin/api/requests');
+      const requests = await response.json();
+      
+      const tableBody = document.getElementById('allRequestsList');
+      tableBody.innerHTML = '';
+      
+      if (requests.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No requests found</td></tr>';
+        return;
+      }
+      
+      requests.forEach(request => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${request._id.substring(0, 8)}...</td>
+          <td><span class="badge bg-${getRequestTypeBadge(request.type)}">${request.type}</span></td>
+          <td>${request.user ? request.user.name : 'Anonymous'}</td>
+          <td>${request.content.length > 50 ? request.content.substring(0, 50) + '...' : request.content}</td>
+          <td>${new Date(request.createdAt).toLocaleString()}</td>
+          <td><span class="badge bg-${request.resolved ? 'success' : 'warning'}">${request.resolved ? 'Resolved' : 'Pending'}</span></td>
+          <td>
+            <button class="btn btn-sm btn-info" onclick="viewRequest('${request._id}')">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-success" onclick="markResolved('${request._id}')">
+              <i class="fas fa-check"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteRequest('${request._id}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+      
+      document.getElementById('allRequestsShowing').textContent = requests.length;
+    } catch (error) {
+      console.error('Error loading requests:', error);
+      alert('Failed to load requests. Please try again.');
+    }
+  }
+  
+  // Function to load chatbot queries
+  async function loadChatbotQueries() {
+    try {
+      const response = await fetch('/admin/api/requests/chatbot');
+      const queries = await response.json();
+      
+      const tableBody = document.getElementById('chatbotQueriesList');
+      tableBody.innerHTML = '';
+      
+      if (queries.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No chatbot queries found</td></tr>';
+        return;
+      }
+      
+      queries.forEach(query => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${query._id.substring(0, 8)}...</td>
+          <td>${query.user ? query.user.name : 'Anonymous'}</td>
+          <td>${query.question.length > 30 ? query.question.substring(0, 30) + '...' : query.question}</td>
+          <td>${query.answer.length > 30 ? query.answer.substring(0, 30) + '...' : query.answer}</td>
+          <td>${new Date(query.createdAt).toLocaleString()}</td>
+          <td>${getSatisfactionBadge(query.satisfaction)}</td>
+          <td>
+            <button class="btn btn-sm btn-info" onclick="viewRequest('${query._id}', 'chatbot')">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteRequest('${query._id}', 'chatbot')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    } catch (error) {
+      console.error('Error loading chatbot queries:', error);
+      alert('Failed to load chatbot queries. Please try again.');
+    }
+  }
+  
+  // Function to load crop recommendations
+  async function loadCropRecommendations() {
+    try {
+      const response = await fetch('/admin/api/requests/crop-recommendations');
+      const recommendations = await response.json();
+      
+      const tableBody = document.getElementById('cropRecommendationsList');
+      tableBody.innerHTML = '';
+      
+      if (recommendations.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No crop recommendations found</td></tr>';
+        return;
+      }
+      
+      recommendations.forEach(recommendation => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${recommendation._id.substring(0, 8)}...</td>
+          <td>${recommendation.user ? recommendation.user.name : 'Anonymous'}</td>
+          <td>${recommendation.location || '-'}</td>
+          <td>${recommendation.soilType || '-'}</td>
+          <td>${recommendation.recommendedCrops?.join(', ') || '-'}</td>
+          <td>${new Date(recommendation.createdAt).toLocaleString()}</td>
+          <td>
+            <button class="btn btn-sm btn-info" onclick="viewRequest('${recommendation._id}', 'crop-recommendation')">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteRequest('${recommendation._id}', 'crop-recommendation')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    } catch (error) {
+      console.error('Error loading crop recommendations:', error);
+      alert('Failed to load crop recommendations. Please try again.');
+    }
+  }
+  
+  // Function to load market requests
+  async function loadMarketRequests() {
+    try {
+      const response = await fetch('/admin/api/requests/market');
+      const marketRequests = await response.json();
+      
+      const tableBody = document.getElementById('marketRequestsList');
+      tableBody.innerHTML = '';
+      
+      if (marketRequests.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="8" class="text-center">No market requests found</td></tr>';
+        return;
+      }
+      
+      marketRequests.forEach(request => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${request._id.substring(0, 8)}...</td>
+          <td>${request.farmer ? request.farmer.name : '-'}</td>
+          <td>${request.buyer ? request.buyer.name : '-'}</td>
+          <td>${request.crop || '-'}</td>
+          <td>${request.quantity ? request.quantity + ' kg' : '-'}</td>
+          <td><span class="badge bg-${getStatusBadge(request.status)}">${request.status}</span></td>
+          <td>${new Date(request.createdAt).toLocaleString()}</td>
+          <td>
+            <button class="btn btn-sm btn-info" onclick="viewRequest('${request._id}', 'market')">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteRequest('${request._id}', 'market')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    } catch (error) {
+      console.error('Error loading market requests:', error);
+      alert('Failed to load market requests. Please try again.');
+    }
+  }
+  
+  // Function to view request details
+  async function viewRequest(id, type = 'all') {
+    try {
+      const response = await fetch(`/admin/api/requests/${id}`);
+      const request = await response.json();
+      
+      // Set request details in the modal
+      document.getElementById('requestId').textContent = request._id;
+      document.getElementById('requestType').textContent = request.type;
+      document.getElementById('requestType').className = `badge bg-${getRequestTypeBadge(request.type)}`;
+      document.getElementById('requestUser').textContent = request.user ? request.user.name : 'Anonymous';
+      document.getElementById('requestDate').textContent = new Date(request.createdAt).toLocaleString();
+      document.getElementById('requestStatus').textContent = request.resolved ? 'Resolved' : 'Pending';
+      document.getElementById('requestStatus').className = `badge bg-${request.resolved ? 'success' : 'warning'}`;
+      document.getElementById('requestIp').textContent = request.ipAddress || 'Not recorded';
+      document.getElementById('requestContent').textContent = request.content || request.question || '';
+      
+      // Show/hide response container based on availability
+      if (request.answer || request.response) {
+        document.getElementById('requestResponseContainer').style.display = 'block';
+        document.getElementById('requestResponse').textContent = request.answer || request.response || '';
+      } else {
+        document.getElementById('requestResponseContainer').style.display = 'none';
+      }
+      
+      // Show metadata if available
+      if (request.metadata || request.additionalData) {
+        document.getElementById('requestMetadataContainer').style.display = 'block';
+        document.getElementById('requestMetadata').querySelector('pre').textContent = 
+          JSON.stringify(request.metadata || request.additionalData || {}, null, 2);
+      } else {
+        document.getElementById('requestMetadataContainer').style.display = 'none';
+      }
+      
+      // Update button states
+      document.getElementById('markResolvedBtn').disabled = request.resolved;
+      document.getElementById('markResolvedBtn').textContent = request.resolved ? 'Already Resolved' : 'Mark as Resolved';
+      
+      // Show the modal
+      $('#viewRequestModal').modal('show');
+    } catch (error) {
+      console.error('Error viewing request:', error);
+      alert('Failed to load request details. Please try again.');
+    }
+  }
+  
+  // Function to mark request as resolved
+  async function markResolved(id) {
+    try {
+      const response = await fetch(`/admin/api/requests/${id}/resolve`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        alert('Request marked as resolved');
+        
+        // Close modal if open
+        if ($('#viewRequestModal').hasClass('show')) {
+          $('#viewRequestModal').modal('hide');
+        }
+        
+        // Reload current tab
+        const activeTab = document.querySelector('#requestTabs .nav-link.active').getAttribute('id');
+        if (activeTab === 'all-requests-tab') {
+          loadAllRequests();
+        } else if (activeTab === 'chatbot-tab') {
+          loadChatbotQueries();
+        } else if (activeTab === 'crop-recommendations-tab') {
+          loadCropRecommendations();
+        } else if (activeTab === 'market-tab') {
+          loadMarketRequests();
+        }
+        
+        // Update counts
+        updateRequestCounts();
+      } else {
+        alert(result.message || 'Failed to mark request as resolved');
+      }
+    } catch (error) {
+      console.error('Error marking request as resolved:', error);
+      alert('Failed to mark request as resolved. Please try again.');
+    }
+  }
+  
+  // Function to delete request
+  async function deleteRequest(id, type = 'all') {
+    if (confirm('Are you sure you want to delete this request? This action cannot be undone.')) {
+      try {
+        const response = await fetch(`/admin/api/requests/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('Request deleted successfully');
+          
+          // Close modal if open
+          if ($('#viewRequestModal').hasClass('show')) {
+            $('#viewRequestModal').modal('hide');
+          }
+          
+          // Reload current tab
+          const activeTab = document.querySelector('#requestTabs .nav-link.active').getAttribute('id');
+          if (activeTab === 'all-requests-tab') {
+            loadAllRequests();
+          } else if (activeTab === 'chatbot-tab') {
+            loadChatbotQueries();
+          } else if (activeTab === 'crop-recommendations-tab') {
+            loadCropRecommendations();
+          } else if (activeTab === 'market-tab') {
+            loadMarketRequests();
+          }
+          
+          // Update counts
+          updateRequestCounts();
+        } else {
+          alert(result.message || 'Failed to delete request');
+        }
+      } catch (error) {
+        console.error('Error deleting request:', error);
+        alert('Failed to delete request. Please try again.');
+      }
+    }
+  }
+  
+  // Function to export requests
+  function exportRequests() {
+    const activeTab = document.querySelector('#requestTabs .nav-link.active').getAttribute('id');
+    let endpoint = '/admin/api/requests/export';
+    
+    if (activeTab === 'chatbot-tab') {
+      endpoint = '/admin/api/requests/chatbot/export';
+    } else if (activeTab === 'crop-recommendations-tab') {
+      endpoint = '/admin/api/requests/crop-recommendations/export';
+    } else if (activeTab === 'market-tab') {
+      endpoint = '/admin/api/requests/market/export';
+    }
+    
+    window.location.href = endpoint;
+  }
+  
+  // Function to filter requests
+  function filterRequests(filter) {
+    // Implementation depends on backend API
+    const activeTab = document.querySelector('#requestTabs .nav-link.active').getAttribute('id');
+    let endpoint = `/admin/api/requests?filter=${filter}`;
+    
+    if (activeTab === 'chatbot-tab') {
+      endpoint = `/admin/api/requests/chatbot?filter=${filter}`;
+    } else if (activeTab === 'crop-recommendations-tab') {
+      endpoint = `/admin/api/requests/crop-recommendations?filter=${filter}`;
+    } else if (activeTab === 'market-tab') {
+      endpoint = `/admin/api/requests/market?filter=${filter}`;
+    }
+    
+    // Fetch and update the table
+    fetch(endpoint)
+      .then(response => response.json())
+      .then(data => {
+        // Update the appropriate table based on active tab
+        if (activeTab === 'all-requests-tab') {
+          updateAllRequestsTable(data);
+        } else if (activeTab === 'chatbot-tab') {
+          updateChatbotQueriesTable(data);
+        } else if (activeTab === 'crop-recommendations-tab') {
+          updateCropRecommendationsTable(data);
+        } else if (activeTab === 'market-tab') {
+          updateMarketRequestsTable(data);
+        }
+      })
+      .catch(error => {
+        console.error('Error filtering requests:', error);
+        alert('Failed to filter requests. Please try again.');
+      });
+  }
+  
+  // Function to search requests
+  function searchRequests(query, type) {
+    if (query.length < 2) {
+      // If query is too short, reload the original data
+      if (type === 'all') {
+        loadAllRequests();
+      } else if (type === 'chatbot') {
+        loadChatbotQueries();
+      } else if (type === 'crop-recommendation') {
+        loadCropRecommendations();
+      } else if (type === 'market') {
+        loadMarketRequests();
+      }
+      return;
+    }
+    
+    // Endpoint based on type
+    let endpoint = `/api/admin/requests/search?q=${encodeURIComponent(query)}`;
+    
+    if (type === 'chatbot') {
+      endpoint = `/api/admin/requests/chatbot/search?q=${encodeURIComponent(query)}`;
+    } else if (type === 'crop-recommendation') {
+      endpoint = `/api/admin/requests/crop-recommendations/search?q=${encodeURIComponent(query)}`;
+    } else if (type === 'market') {
+      endpoint = `/api/admin/requests/market/search?q=${encodeURIComponent(query)}`;
+    }
+    
+    // Fetch and update the table
+    fetch(endpoint)
+      .then(response => response.json())
+      .then(data => {
+        // Update the appropriate table based on type
+        if (type === 'all') {
+          updateAllRequestsTable(data);
+        } else if (type === 'chatbot') {
+          updateChatbotQueriesTable(data);
+        } else if (type === 'crop-recommendation') {
+          updateCropRecommendationsTable(data);
+        } else if (type === 'market') {
+          updateMarketRequestsTable(data);
+        }
+      })
+      .catch(error => {
+        console.error('Error searching requests:', error);
+      });
+  }
+  
+  // Helper functions to update tables
+  function updateAllRequestsTable(requests) {
+    const tableBody = document.getElementById('allRequestsList');
+    tableBody.innerHTML = '';
+    
+    if (requests.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No requests found</td></tr>';
+      document.getElementById('allRequestsShowing').textContent = '0';
+      return;
+    }
+    
+    requests.forEach(request => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${request._id.substring(0, 8)}...</td>
+        <td><span class="badge bg-${getRequestTypeBadge(request.type)}">${request.type}</span></td>
+        <td>${request.user ? request.user.name : 'Anonymous'}</td>
+        <td>${request.content.length > 50 ? request.content.substring(0, 50) + '...' : request.content}</td>
+        <td>${new Date(request.createdAt).toLocaleString()}</td>
+        <td><span class="badge bg-${request.resolved ? 'success' : 'warning'}">${request.resolved ? 'Resolved' : 'Pending'}</span></td>
+        <td>
+          <button class="btn btn-sm btn-info" onclick="viewRequest('${request._id}')">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="btn btn-sm btn-success" onclick="markResolved('${request._id}')">
+            <i class="fas fa-check"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteRequest('${request._id}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+    
+    document.getElementById('allRequestsShowing').textContent = requests.length;
+  }
+  
+  function updateChatbotQueriesTable(queries) {
+    const tableBody = document.getElementById('chatbotQueriesList');
+    tableBody.innerHTML = '';
+    
+    if (queries.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No chatbot queries found</td></tr>';
+      return;
+    }
+    
+    queries.forEach(query => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${query._id.substring(0, 8)}...</td>
+        <td>${query.user ? query.user.name : 'Anonymous'}</td>
+        <td>${query.question.length > 30 ? query.question.substring(0, 30) + '...' : query.question}</td>
+        <td>${query.answer.length > 30 ? query.answer.substring(0, 30) + '...' : query.answer}</td>
+        <td>${new Date(query.createdAt).toLocaleString()}</td>
+        <td>${getSatisfactionBadge(query.satisfaction)}</td>
+        <td>
+          <button class="btn btn-sm btn-info" onclick="viewRequest('${query._id}', 'chatbot')">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteRequest('${query._id}', 'chatbot')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+  
+  function updateCropRecommendationsTable(recommendations) {
+    const tableBody = document.getElementById('cropRecommendationsList');
+    tableBody.innerHTML = '';
+    
+    if (recommendations.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No crop recommendations found</td></tr>';
+      return;
+    }
+    
+    recommendations.forEach(recommendation => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${recommendation._id.substring(0, 8)}...</td>
+        <td>${recommendation.user ? recommendation.user.name : 'Anonymous'}</td>
+        <td>${recommendation.location || '-'}</td>
+        <td>${recommendation.soilType || '-'}</td>
+        <td>${recommendation.recommendedCrops?.join(', ') || '-'}</td>
+        <td>${new Date(recommendation.createdAt).toLocaleString()}</td>
+        <td>
+          <button class="btn btn-sm btn-info" onclick="viewRequest('${recommendation._id}', 'crop-recommendation')">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteRequest('${recommendation._id}', 'crop-recommendation')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+  
+  function updateMarketRequestsTable(marketRequests) {
+    const tableBody = document.getElementById('marketRequestsList');
+    tableBody.innerHTML = '';
+    
+    if (marketRequests.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="8" class="text-center">No market requests found</td></tr>';
+      return;
+    }
+    
+    marketRequests.forEach(request => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${request._id.substring(0, 8)}...</td>
+        <td>${request.farmer ? request.farmer.name : '-'}</td>
+        <td>${request.buyer ? request.buyer.name : '-'}</td>
+        <td>${request.crop || '-'}</td>
+        <td>${request.quantity ? request.quantity + ' kg' : '-'}</td>
+        <td><span class="badge bg-${getStatusBadge(request.status)}">${request.status}</span></td>
+        <td>${new Date(request.createdAt).toLocaleString()}</td>
+        <td>
+          <button class="btn btn-sm btn-info" onclick="viewRequest('${request._id}', 'market')">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteRequest('${request._id}', 'market')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+  
+  // Helper function to get request type badge color
+  function getRequestTypeBadge(type) {
+    switch (type) {
+      case 'chatbot':
+        return 'info';
+      case 'crop-recommendation':
+        return 'success';
+      case 'market':
+        return 'primary';
+      default:
+        return 'secondary';
+    }
+  }
+  
+  // Helper function to get status badge color
+  function getStatusBadge(status) {
+    switch (status) {
+      case 'pending':
+        return 'warning';
+      case 'approved':
+        return 'success';
+      case 'rejected':
+        return 'danger';
+      case 'completed':
+        return 'primary';
+      default:
+        return 'secondary';
+    }
+  }
+  
+  // Helper function to get satisfaction badge
+  function getSatisfactionBadge(satisfaction) {
+    if (!satisfaction) return '<span class="badge bg-secondary">Not rated</span>';
+    
+    let badgeClass = 'secondary';
+    let text = 'Not rated';
+    
+    if (satisfaction === 'positive' || satisfaction > 3) {
+      badgeClass = 'success';
+      text = 'Positive';
+    } else if (satisfaction === 'neutral' || satisfaction === 3) {
+      badgeClass = 'info';
+      text = 'Neutral';
+    } else if (satisfaction === 'negative' || satisfaction < 3) {
+      badgeClass = 'danger';
+      text = 'Negative';
+    }
+    
+    return `<span class="badge bg-${badgeClass}">${text}</span>`;
+  }
+</script>

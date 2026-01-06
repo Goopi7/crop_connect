@@ -1,0 +1,433 @@
+<%- include("./partials/header") %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <!-- Sidebar with quick questions -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Common Questions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <button class="list-group-item list-group-item-action quick-question">What crops grow well in rainy season?</button>
+                        <button class="list-group-item list-group-item-action quick-question">How to prevent crop diseases?</button>
+                        <button class="list-group-item list-group-item-action quick-question">When is the best time to harvest wheat?</button>
+                        <button class="list-group-item list-group-item-action quick-question">What fertilizers are best for tomatoes?</button>
+                        <button class="list-group-item list-group-item-action quick-question">How to get better prices for my crops?</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Categories -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Categories</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <button class="list-group-item list-group-item-action category-btn" data-category="planting">Planting</button>
+                        <button class="list-group-item list-group-item-action category-btn" data-category="harvesting">Harvesting</button>
+                        <button class="list-group-item list-group-item-action category-btn" data-category="pricing">Pricing</button>
+                        <button class="list-group-item list-group-item-action category-btn" data-category="diseases">Diseases & Pests</button>
+                        <button class="list-group-item list-group-item-action category-btn" data-category="fertilizers">Fertilizers</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <!-- Chat interface -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Crop Connect Assistant</h4>
+                </div>
+                <div class="card-body">
+                    <div class="chat-container" id="chatContainer">
+                        <div class="message bot-message">
+                            <div class="message-content">
+                                <p>Hello <%= user.name %>! I'm your Crop Connect Assistant. How can I help you today?</p>
+                                <p>You can ask me questions about crop growing procedures, pest & disease management, fertilizer recommendations, or market information.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div id="userContextPanel" class="mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="me-2"><i class="fas fa-map-marker-alt"></i> Location:</span>
+                            <select id="userLocation" class="form-select form-select-sm" style="max-width: 200px;">
+                                <option value="">Select your location</option>
+                                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                <option value="Bihar">Bihar</option>
+                                <option value="Gujarat">Gujarat</option>
+                                <option value="Haryana">Haryana</option>
+                                <option value="Karnataka">Karnataka</option>
+                                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                <option value="Maharashtra">Maharashtra</option>
+                                <option value="Punjab">Punjab</option>
+                                <option value="Rajasthan">Rajasthan</option>
+                                <option value="Tamil Nadu">Tamil Nadu</option>
+                                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                <option value="West Bengal">West Bengal</option>
+                            </select>
+                            <span class="mx-3"><i class="fas fa-cloud-sun"></i> Season:</span>
+                            <select id="userSeason" class="form-select form-select-sm" style="max-width: 150px;">
+                                <option value="">Select season</option>
+                                <option value="kharif">Kharif (Monsoon)</option>
+                                <option value="rabi">Rabi (Winter)</option>
+                                <option value="zaid">Zaid (Summer)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <form id="chatForm" class="d-flex">
+                        <input type="text" id="questionInput" class="form-control me-2" placeholder="Type your question here..." required>
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Follow-up suggestions -->
+            <div class="card mt-3" id="followUpSuggestions" style="display: none;">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">You might also want to know:</h6>
+                </div>
+                <div class="card-body py-2">
+                    <div id="followUpButtons" class="d-flex flex-wrap gap-2">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Suggested questions based on category -->
+            <div class="card mt-4" id="suggestedQuestions" style="display: none;">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Suggested Questions</h5>
+                </div>
+                <div class="card-body">
+                    <div id="suggestedQuestionsContent" class="list-group">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .chat-container {
+        height: 400px;
+        overflow-y: auto;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+    }
+    
+    .message {
+        margin-bottom: 15px;
+        display: flex;
+    }
+    
+    .user-message {
+        justify-content: flex-end;
+    }
+    
+    .message-content {
+        max-width: 80%;
+        padding: 10px 15px;
+        border-radius: 10px;
+    }
+    
+    .bot-message .message-content {
+        background-color: #e9ecef;
+    }
+    
+    .user-message .message-content {
+        background-color: #d1e7dd;
+    }
+    
+    .quick-question:hover, .category-btn:hover {
+        cursor: pointer;
+        background-color: #f8f9fa;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatForm = document.getElementById('chatForm');
+        const questionInput = document.getElementById('questionInput');
+        const chatContainer = document.getElementById('chatContainer');
+        const quickQuestions = document.querySelectorAll('.quick-question');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const suggestedQuestions = document.getElementById('suggestedQuestions');
+        const suggestedQuestionsContent = document.getElementById('suggestedQuestionsContent');
+        
+        // Category-based suggested questions
+        const categoryQuestions = {
+            planting: [
+                "When should I plant rice?",
+                "What are the best crops for summer season?",
+                "How much spacing is needed for tomato plants?",
+                "What is the ideal soil pH for growing wheat?",
+                "How deep should I plant potato seeds?"
+            ],
+            harvesting: [
+                "When is the best time to harvest wheat?",
+                "How do I know when tomatoes are ready to harvest?",
+                "What tools are needed for rice harvesting?",
+                "How to store harvested crops properly?",
+                "What is the shelf life of harvested potatoes?"
+            ],
+            pricing: [
+                "How to get better prices for my crops?",
+                "What factors affect crop prices?",
+                "When is the best time to sell rice?",
+                "How to negotiate with buyers?",
+                "What value-added products can I make from my crops?"
+            ],
+            diseases: [
+                "How to prevent crop diseases?",
+                "What are signs of fungal infection in tomatoes?",
+                "How to control pests without chemicals?",
+                "What causes yellow leaves in rice plants?",
+                "How to treat powdery mildew on crops?"
+            ],
+            fertilizers: [
+                "What fertilizers are best for tomatoes?",
+                "How to make organic compost at home?",
+                "When is the best time to apply fertilizers?",
+                "How to identify nutrient deficiencies in plants?",
+                "What is the NPK ratio and why is it important?"
+            ]
+        };
+        
+        // Handle form submission
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const question = questionInput.value.trim();
+            
+            if (question) {
+                // Add user message to chat
+                addMessage(question, 'user');
+                
+                // Clear input
+                questionInput.value = '';
+                
+                // Get bot response
+                getBotResponse(question);
+            }
+        });
+        
+        // Handle quick questions
+        quickQuestions.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const question = this.textContent;
+                questionInput.value = question;
+                chatForm.dispatchEvent(new Event('submit'));
+            });
+        });
+        
+        // Handle category buttons
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const category = this.dataset.category;
+                const questions = categoryQuestions[category];
+                
+                // Clear and populate suggested questions
+                suggestedQuestionsContent.innerHTML = '';
+                questions.forEach(question => {
+                    const btn = document.createElement('button');
+                    btn.className = 'list-group-item list-group-item-action quick-question';
+                    btn.textContent = question;
+                    btn.addEventListener('click', function() {
+                        questionInput.value = this.textContent;
+                        chatForm.dispatchEvent(new Event('submit'));
+                    });
+                    suggestedQuestionsContent.appendChild(btn);
+                });
+                
+                // Show suggested questions
+                suggestedQuestions.style.display = 'block';
+            });
+        });
+        
+        // Function to add message to chat
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            const messagePara = document.createElement('p');
+            messagePara.textContent = text;
+            
+            messageContent.appendChild(messagePara);
+            messageDiv.appendChild(messageContent);
+            chatContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Function to get bot response
+        async function getBotResponse(question) {
+            try {
+                // Show loading message
+                const loadingId = showLoading();
+                
+                // Get user context
+                const userContext = {
+                    location: document.getElementById('userLocation').value,
+                    season: document.getElementById('userSeason').value
+                };
+                
+                // Send request to server
+                const response = await fetch('/api/chatbot/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ question, userContext })
+                });
+                
+                // Remove loading message
+                removeLoading(loadingId);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Format and display the answer with markdown support
+                    const formattedAnswer = formatMarkdown(data.answer);
+                    addFormattedMessage(formattedAnswer, 'bot');
+                    
+                    // Show follow-up suggestions if available
+                    if (data.followUpSuggestions && data.followUpSuggestions.length > 0) {
+                        showFollowUpSuggestions(data.followUpSuggestions);
+                    }
+                    
+                    // Show clarifying questions if needed
+                    if (data.needsMoreInfo && data.clarifyingQuestions && data.clarifyingQuestions.length > 0) {
+                        showClarifyingQuestions(data.clarifyingQuestions);
+                    }
+                } else {
+                    const error = await response.json();
+                    addMessage('Sorry, I encountered an error: ' + error.error, 'bot');
+                }
+            } catch (err) {
+                console.error('Error getting bot response:', err);
+                addMessage('Sorry, I\'m having trouble connecting to the server. Please try again later.', 'bot');
+            }
+        }
+        
+        // Function to add formatted message with markdown support
+        function addFormattedMessage(html, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.innerHTML = html;
+            
+            messageDiv.appendChild(messageContent);
+            chatContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Function to format markdown text
+        function formatMarkdown(text) {
+            // Replace headers
+            text = text.replace(/^# (.*$)/gm, '<h3>$1</h3>');
+            text = text.replace(/^## (.*$)/gm, '<h4>$1</h4>');
+            text = text.replace(/^### (.*$)/gm, '<h5>$1</h5>');
+            
+            // Replace bold
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // Replace italic
+            text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // Replace lists
+            text = text.replace(/^\s*-\s*(.*$)/gm, '<li>$1</li>');
+            text = text.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
+            
+            // Replace numbered lists
+            text = text.replace(/^\s*\d+\.\s*(.*$)/gm, '<li>$1</li>');
+            text = text.replace(/(<li>.*<\/li>)/gs, '<ol>$1</ol>');
+            
+            // Replace paragraphs
+            text = text.replace(/^(?!<[hou]|<li)(.+)$/gm, '<p>$1</p>');
+            
+            // Replace line breaks
+            text = text.replace(/\n\n/g, '<br>');
+            
+            return text;
+        }
+        
+        // Function to show follow-up suggestions
+        function showFollowUpSuggestions(suggestions) {
+            const followUpButtons = document.getElementById('followUpButtons');
+            followUpButtons.innerHTML = '';
+            
+            suggestions.forEach(suggestion => {
+                const button = document.createElement('button');
+                button.className = 'btn btn-sm btn-outline-secondary';
+                button.textContent = suggestion;
+                button.addEventListener('click', function() {
+                    questionInput.value = this.textContent;
+                    chatForm.dispatchEvent(new Event('submit'));
+                });
+                followUpButtons.appendChild(button);
+            });
+            
+            document.getElementById('followUpSuggestions').style.display = 'block';
+        }
+        
+        // Function to show clarifying questions
+        function showClarifyingQuestions(questions) {
+            let message = '<p><strong>I need a bit more information to help you better:</strong></p><ul>';
+            
+            questions.forEach(question => {
+                message += `<li>${question}</li>`;
+            });
+            
+            message += '</ul>';
+            
+            addFormattedMessage(message, 'bot');
+        }
+        
+        // Function to show loading message
+        function showLoading() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message bot-message';
+            loadingDiv.id = 'loading-' + Date.now();
+            
+            const loadingContent = document.createElement('div');
+            loadingContent.className = 'message-content';
+            
+            const loadingPara = document.createElement('p');
+            loadingPara.textContent = 'Thinking...';
+            
+            loadingContent.appendChild(loadingPara);
+            loadingDiv.appendChild(loadingContent);
+            chatContainer.appendChild(loadingDiv);
+            
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            return loadingDiv.id;
+        }
+        
+        // Function to remove loading message
+        function removeLoading(id) {
+            const loadingDiv = document.getElementById(id);
+            if (loadingDiv) {
+                loadingDiv.remove();
+            }
+        }
+    });
+</script>
+
+<%- include("./partials/footer") %>

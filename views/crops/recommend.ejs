@@ -1,0 +1,431 @@
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const recommendationForm = document.getElementById('recommendationForm');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const recommendationsContainer = document.getElementById('recommendationsContainer');
+        const recommendationsList = document.getElementById('recommendationsList');
+        const noRecommendations = document.getElementById('noRecommendations');
+        const printBtn = document.getElementById('printRecommendations');
+        const exportBtn = document.getElementById('exportRecommendations');
+        const filterLinks = document.querySelectorAll('.filter-link');
+    
+        // Prefill from localStorage
+        try {
+            const saved = JSON.parse(localStorage.getItem('cropRecInputs') || '{}');
+            Object.entries(saved).forEach(([k, v]) => {
+                const el = document.getElementById(k);
+                if (el && v !== undefined && v !== null) el.value = v;
+            });
+        } catch (_) {}
+    
+        // Handle form submission (ONLY ONCE)
+        recommendationForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+    
+            // Show loading indicator
+            loadingIndicator.classList.remove('d-none');
+            recommendationsContainer.classList.add('d-none');
+            noRecommendations.classList.add('d-none');
+    
+            // Get form data
+            const formData = new FormData(recommendationForm);
+            const formDataObj = Object.fromEntries(formData.entries());
+    
+            // Persist inputs
+            try {
+                localStorage.setItem('cropRecInputs', JSON.stringify(formDataObj));
+            } catch (_) {}
+    
+            try {
+                const response = await fetch('/api/recommendations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formDataObj)
+                });
+    
+                const data = await response.json();
+                loadingIndicator.classList.add('d-none');
+    
+                if (data.success && data.recommendations && data.recommendations.length > 0) {
+                    recommendationsContainer.classList.remove('d-none');
+                    recommendationsList.innerHTML = '';
+    
+                    data.recommendations.forEach((rec, index) => {
+                        // Card with basic info
+                        const card = document.createElement('div');
+                        card.className = 'col-md-6 col-lg-4 mb-4';
+                        card.innerHTML = `
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">${rec.name}</h5>
+                                        <span class="badge bg-success">Score: ${Math.round(rec.score)}</span>
+                                    </div>
+                                    <div class="text-muted small">${rec.scientific_name || ''}</div>
+                                    <div class="mt-1">
+                                        ${rec.categories ? rec.categories.map(cat => `<span class="badge bg-info text-dark me-1">${cat.replace('_', ' ')}</span>`).join('') : ''}
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>Key Benefits</h6>
+                                        <ul class="small">
+                                            ${
+                                                rec.why && rec.why.length
+                                                    ? rec.why.slice(0, 3).map(reason => `<li>${reason}</li>`).join('')
+                                                    : '<li>Suitable for your conditions</li>'
+                                            }
+                                        </ul>
+                                    </div>
+    
+                                    <div class="row mb-3">
+                                        <div class="col-6">
+                                            <div class="small text-muted">Expected Yield</div>
+                                            <div>${
+                                                rec.expected_yield
+                                                    ? `${rec.expected_yield.min}-${rec.expected_yield.max} ${rec.expected_yield.unit}`
+                                                    : 'Varies'
+                                            }</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="small text-muted">Days to Maturity</div>
+                                            <div>${
+                                                rec.days_to_maturity
+                                                    ? `${rec.days_to_maturity.min}-${rec.days_to_maturity.max} days`
+                                                    : 'Varies'
+                                            }</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <div class="small text-muted">Process Timeline</div>
+                                        <ul class="mb-0">
+                                            ${(rec.procedure || []).map(s => `<li><strong>${s.step}</strong> — <span class="text-muted">${s.days}</span></li>`).join('')}
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white">
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-primary btn-sm flex-grow-1 view-crop-details"
+                                                data-index="${index}">
+                                            View Details
+                                        </button>
+                                        <button class="btn btn-outline-secondary btn-sm flex-grow-1 view-procedure"
+                                                data-index="${index}">
+                                            View Procedure
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        recommendationsList.appendChild(card);
+    
+                        // Hidden procedure section for this crop
+                        const procedureDiv = document.createElement('div');
+                        procedureDiv.className = 'procedure-content d-none border rounded p-3 mb-3';
+                        procedureDiv.id = `procedure-${index}`;
+                        procedureDiv.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">Complete Procedure for ${rec.name}</h5>
+                                <button type="button" class="btn-close close-procedure" data-index="${index}"></button>
+                            </div>
+                            <div class="timeline">
+                                ${(rec.procedure || []).map((step, i) => `
+                                    <div class="timeline-item">
+                                        <div class="timeline-marker bg-primary">${i + 1}</div>
+                                        <div class="timeline-content">
+                                            <h6>${step.step} <span class="text-muted">(${step.days})</span></h6>
+                                            <p>${step.description || ''}</p>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        recommendationsList.appendChild(procedureDiv);
+                    });
+    
+                    // Detail buttons
+                    document.querySelectorAll('.view-crop-details').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const index = btn.getAttribute('data-index');
+                            showCropDetails(data.recommendations[index]);
+                        });
+                    });
+    
+                    // Procedure buttons
+                    document.querySelectorAll('.view-procedure').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const index = this.getAttribute('data-index');
+    
+                            // Hide all procedures
+                            document.querySelectorAll('.procedure-content').forEach(div => {
+                                div.classList.add('d-none');
+                            });
+    
+                            const procedureDiv = document.getElementById(`procedure-${index}`);
+                            if (procedureDiv) {
+                                procedureDiv.classList.remove('d-none');
+                            }
+                        });
+                    });
+    
+                    // Close procedure buttons
+                    document.querySelectorAll('.close-procedure').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const index = this.getAttribute('data-index');
+                            const procedureDiv = document.getElementById(`procedure-${index}`);
+                            if (procedureDiv) {
+                                procedureDiv.classList.add('d-none');
+                            }
+                        });
+                    });
+    
+                } else {
+                    noRecommendations.classList.remove('d-none');
+                }
+            } catch (error) {
+                console.error('Error fetching recommendations:', error);
+                loadingIndicator.classList.add('d-none');
+                noRecommendations.classList.remove('d-none');
+            }
+        });
+    
+        // Use my location → fill temperature via /api/weather and append lat,lon
+        const btnLoc = document.getElementById('btnUseLocationRec');
+        if (btnLoc && navigator.geolocation) {
+            btnLoc.addEventListener('click', () => {
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    try {
+                        const { latitude: lat, longitude: lon } = pos.coords;
+                        const url = `/api/weather?lat=${lat}&lon=${lon}&units=metric`;
+                        const resp = await fetch(url);
+                        const data = await resp.json();
+    
+                        if (data && (data.data || data).temp !== undefined) {
+                            const temp = (data.data?.temp ?? data.temp);
+                            const tempEl = document.getElementById('temperature');
+                            if (tempEl) tempEl.value = temp;
+                        }
+    
+                        const locEl = document.getElementById('location');
+                        if (locEl) {
+                            const current = locEl.value?.trim();
+                            locEl.value = current
+                                ? `${current} (coords: ${lat.toFixed(4)}, ${lon.toFixed(4)})`
+                                : `coords: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+                        }
+                    } catch (e) {
+                        console.warn('Weather or geolocation fetch failed', e);
+                    }
+                }, () => alert('Unable to get location'));
+            });
+        }
+    
+        // Show crop details in modal
+        function showCropDetails(crop) {
+            document.getElementById('cropDetailModalLabel').textContent = crop.name;
+            document.getElementById('crop-detail-name').textContent = crop.name;
+            document.getElementById('crop-detail-description').textContent =
+                crop.description || `${crop.name} (${crop.scientific_name || 'Scientific name not available'})`;
+    
+            // Image
+            const cropImage = document.getElementById('crop-detail-image');
+            if (crop.image_url) {
+                cropImage.src = crop.image_url;
+            } else {
+                cropImage.src = '/images/default-crop.jpg';
+            }
+            cropImage.style.display = 'block';
+    
+            // Score
+            const scoreElement = document.getElementById('crop-detail-score');
+            const scorePercentage = Math.round(crop.score || 0);
+            scoreElement.style.width = `${scorePercentage}%`;
+            scoreElement.textContent = `${scorePercentage}%`;
+            scoreElement.setAttribute('aria-valuenow', scorePercentage);
+    
+            // Why
+            const whyElement = document.getElementById('crop-detail-why');
+            if (crop.why && crop.why.length > 0) {
+                whyElement.innerHTML = `
+                    <ul class="list-group list-group-flush">
+                        ${crop.why.map(reason => `<li class="list-group-item">${reason}</li>`).join('')}
+                    </ul>
+                `;
+            } else {
+                whyElement.innerHTML = '<p>No specific recommendation reasons available.</p>';
+            }
+    
+            // Soil requirements
+            const soilElement = document.getElementById('crop-detail-soil');
+            if (crop.soil_requirements) {
+                let soilHtml = '';
+                if (crop.soil_requirements.type) {
+                    const types = Array.isArray(crop.soil_requirements.type)
+                        ? crop.soil_requirements.type.join(', ')
+                        : crop.soil_requirements.type;
+                    soilHtml += `<li><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Type:</strong> ${types}</li>`;
+                }
+                if (crop.soil_requirements.ph) {
+                    soilHtml += `<li><i class="bi bi-check-circle-fill text-success me-2"></i><strong>pH:</strong> ${crop.soil_requirements.ph.min} - ${crop.soil_requirements.ph.max}</li>`;
+                }
+                if (crop.soil_requirements.drainage) {
+                    soilHtml += `<li><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Drainage:</strong> ${crop.soil_requirements.drainage}</li>`;
+                }
+                if (crop.soil_requirements.fertility) {
+                    soilHtml += `<li><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Fertility:</strong> ${crop.soil_requirements.fertility}</li>`;
+                }
+                soilElement.innerHTML = soilHtml || '<li>No specific soil requirements available.</li>';
+            } else {
+                soilElement.innerHTML = '<li>No specific soil requirements available.</li>';
+            }
+    
+            // Water requirements
+            const waterElement = document.getElementById('crop-detail-water');
+            if (crop.water_requirements) {
+                let waterHtml = '';
+                if (crop.water_requirements.rainfall) {
+                    waterHtml += `<li><i class="bi bi-droplet-fill text-primary me-2"></i><strong>Rainfall:</strong> ${crop.water_requirements.rainfall.min} - ${crop.water_requirements.rainfall.max} mm</li>`;
+                }
+                if (crop.water_requirements.irrigation) {
+                    waterHtml += `<li><i class="bi bi-droplet-fill text-primary me-2"></i><strong>Irrigation:</strong> ${crop.water_requirements.irrigation}</li>`;
+                }
+                if (crop.water_requirements.frequency) {
+                    waterHtml += `<li><i class="bi bi-droplet-fill text-primary me-2"></i><strong>Frequency:</strong> ${crop.water_requirements.frequency}</li>`;
+                }
+                waterElement.innerHTML = waterHtml || '<li>No specific water requirements available.</li>';
+            } else {
+                waterElement.innerHTML = '<li>No specific water requirements available.</li>';
+            }
+    
+            // Climate zones
+            const climateElement = document.getElementById('crop-detail-climate');
+            if (crop.climate_zones && crop.climate_zones.length > 0) {
+                climateElement.innerHTML = crop.climate_zones
+                    .map(zone => `<li><i class="bi bi-geo-alt-fill text-warning me-2"></i>${zone}</li>`)
+                    .join('');
+            } else {
+                climateElement.innerHTML = '<li>No specific climate zone information available.</li>';
+            }
+    
+            // Region-specific notes
+            const regionNotesElement = document.getElementById('crop-detail-region-notes');
+            regionNotesElement.textContent = crop.region_specific_notes || 'No region-specific notes available.';
+    
+            // Economics
+            const economicsElement = document.getElementById('crop-detail-economics');
+            if (crop.economics) {
+                let economicsHtml = '';
+                if (crop.economics.cost_of_cultivation) {
+                    economicsHtml += `<li><i class="bi bi-currency-dollar text-success me-2"></i><strong>Cost of Cultivation:</strong> ${crop.economics.cost_of_cultivation.value} ${crop.economics.cost_of_cultivation.unit}/acre</li>`;
+                }
+                if (crop.economics.benefit_cost_ratio) {
+                    economicsHtml += `<li><i class="bi bi-graph-up-arrow text-success me-2"></i><strong>Benefit-Cost Ratio:</strong> ${crop.economics.benefit_cost_ratio}</li>`;
+                }
+                if (crop.economics.return_on_investment) {
+                    economicsHtml += `<li><i class="bi bi-percent text-success me-2"></i><strong>ROI:</strong> ${crop.economics.return_on_investment}%</li>`;
+                }
+                economicsElement.innerHTML = economicsHtml || '<li>No specific economic information available.</li>';
+            } else {
+                economicsElement.innerHTML = '<li>No specific economic information available.</li>';
+            }
+    
+            // Market info
+            const marketElement = document.getElementById('crop-detail-market');
+            if (crop.market_info) {
+                let marketHtml = '';
+                if (crop.market_info.price_range) {
+                    marketHtml += `<li><i class="bi bi-tag-fill text-primary me-2"></i><strong>Price Range:</strong> ${crop.market_info.price_range.min} - ${crop.market_info.price_range.max} ${crop.market_info.price_range.unit}/kg</li>`;
+                }
+                if (crop.market_info.demand_trend) {
+                    marketHtml += `<li><i class="bi bi-graph-up text-primary me-2"></i><strong>Demand Trend:</strong> ${crop.market_info.demand_trend}</li>`;
+                }
+                if (crop.market_info.export_potential) {
+                    marketHtml += `<li><i class="bi bi-globe text-primary me-2"></i><strong>Export Potential:</strong> ${crop.market_info.export_potential}</li>`;
+                }
+                marketElement.innerHTML = marketHtml || '<li>No specific market information available.</li>';
+            } else {
+                marketElement.innerHTML = '<li>No specific market information available.</li>';
+            }
+    
+            // Growth timeline
+            const timelineElement = document.getElementById('crop-detail-timeline');
+            if (crop.growth_stages && crop.growth_stages.length > 0) {
+                let timelineHtml = '<div class="timeline">';
+                crop.growth_stages.forEach((stage, index) => {
+                    timelineHtml += `
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-primary">${index + 1}</div>
+                            <div class="timeline-content">
+                                <h6>${stage.name} (${stage.days_from_sowing.min}-${stage.days_from_sowing.max} days)</h6>
+                                <p>${stage.description || 'No description available.'}</p>
+                                ${
+                                    stage.key_activities
+                                        ? `<p><strong>Key Activities:</strong> ${stage.key_activities.join(', ')}</p>`
+                                        : ''
+                                }
+                            </div>
+                        </div>
+                    `;
+                });
+                timelineHtml += '</div>';
+                timelineElement.innerHTML = timelineHtml;
+            } else {
+                timelineElement.innerHTML = '<p>No growth timeline information available.</p>';
+            }
+    
+            // Learn more
+            const learnMoreBtn = document.getElementById('crop-detail-learn-more');
+            if (crop._id) {
+                learnMoreBtn.onclick = () => {
+                    window.location.href = `/crops/${crop._id}`;
+                };
+                learnMoreBtn.style.display = 'block';
+            } else {
+                learnMoreBtn.style.display = 'none';
+            }
+    
+            const cropDetailModal = new bootstrap.Modal(document.getElementById('cropDetailModal'));
+            cropDetailModal.show();
+        }
+    
+        // Print recommendations
+        printBtn.addEventListener('click', function() {
+            window.print();
+        });
+    
+        // Export recommendations (placeholder)
+        exportBtn.addEventListener('click', function() {
+            alert('Export functionality will be implemented soon!');
+        });
+    
+        // Quick filter links
+        filterLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const filter = this.getAttribute('data-filter');
+    
+                switch (filter) {
+                    case 'organic':
+                        document.getElementById('soil_type').value = 'loamy';
+                        break;
+                    case 'short-duration':
+                        // your select doesn't have "zaid"; using "summer" here
+                        document.getElementById('season').value = 'summer';
+                        break;
+                    case 'low-water':
+                        document.getElementById('rainfall').value = '400';
+                        break;
+                    case 'high-profit':
+                        document.getElementById('risk_preference').value = 'high';
+                        break;
+                }
+    
+                filterLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    });
+    </script>
+    

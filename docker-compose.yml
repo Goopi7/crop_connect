@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - ATLASDB_URL=mongodb://mongo:27017/cropconnect
+      - MAP_TOKEN=${MAP_TOKEN}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - ML_SERVICE_URL=http://ml-service:5001
+    depends_on:
+      - mongo
+      - ml-service
+    networks:
+      - cropconnect-network
+    restart: unless-stopped
+    volumes:
+      - ml-models:/app/ml/models
+      - ml-data:/app/ml/data
+
+  ml-service:
+    build:
+      context: ./ml
+      dockerfile: Dockerfile.ml
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_ENV=production
+      - MODEL_PATH=/app/models
+    volumes:
+      - ml-models:/app/models
+      - ml-data:/app/data
+    networks:
+      - cropconnect-network
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=cropconnect
+    volumes:
+      - mongodb-data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - cropconnect-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - cropconnect-network
+    restart: unless-stopped
+
+networks:
+  cropconnect-network:
+    driver: bridge
+
+volumes:
+  mongodb-data:
+  ml-models:
+  ml-data:
+  redis-data:

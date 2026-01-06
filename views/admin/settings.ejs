@@ -1,0 +1,70 @@
+<!-- Do not include layout here; route sets { layout: 'layout/boilerplate' } -->
+<div class="container py-4">
+  <div class="row">
+    <div class="col-12 col-lg-8">
+      <h1 class="h3 mb-4"><i class="fas fa-cog me-2"></i>Admin Settings</h1>
+
+      <form id="settingsForm" class="card shadow-sm">
+        <div class="card-body">
+          <div class="mb-3">
+            <label for="siteTitle" class="form-label">Site Title</label>
+            <input type="text" id="siteTitle" class="form-control" placeholder="CropConnect" value="CropConnect">
+          </div>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="enableRegistrations" checked>
+            <label class="form-check-label" for="enableRegistrations">Enable new user registrations</label>
+          </div>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="enableML" checked>
+            <label class="form-check-label" for="enableML">Enable ML services</label>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="supportEmail" class="form-label">Support Email</label>
+              <input type="email" id="supportEmail" class="form-control" placeholder="support@cropconnect.local">
+            </div>
+            <div class="col-md-6">
+              <label for="timezone" class="form-label">Timezone</label>
+              <input type="text" id="timezone" class="form-control" placeholder="Asia/Kolkata" value="Asia/Kolkata">
+            </div>
+          </div>
+        </div>
+        <div class="card-footer d-flex gap-2 justify-content-end">
+          <button type="button" class="btn btn-outline-secondary" onclick="resetSettings()">Reset</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm mb-3">
+        <div class="card-header">
+          <strong>System Info</strong>
+        </div>
+        <div class="card-body small">
+          <div class="d-flex justify-content-between"><span>Environment</span><span><code><%= process.env.NODE_ENV || 'development' %></code></span></div>
+          <div class="d-flex justify-content-between"><span>Database</span><span><code><%= (typeof mongoose !== 'undefined' && mongoose?.connection?.name) || 'cropconnect' %></code></span></div>
+          <div class="d-flex justify-content-between"><span>Server Time</span><span><code><%= new Date().toLocaleString() %></code></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function resetSettings() {
+    document.getElementById('siteTitle').value = 'CropConnect';
+    document.getElementById('enableRegistrations').checked = true;
+    document.getElementById('enableML').checked = true;
+    document.getElementById('supportEmail').value = '';
+    document.getElementById('timezone').value = 'Asia/Kolkata';
+  }
+
+  document.getElementById('settingsForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    alert('Settings saved (demo). Wire this form to a backend endpoint to persist.');
+  });
+</script>

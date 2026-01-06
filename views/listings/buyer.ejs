@@ -7,7 +7,7 @@
   <title>Buyer Dashboard</title>
   <style>
  
-    body {
+    .buyer-dashboard {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 2rem;
@@ -20,7 +20,7 @@
       overflow-x: hidden;
     }
 
-    h1 {
+    .buyer-dashboard h1 {
       text-align: center;
       color: #1e272e;
       margin-bottom: 1rem;
@@ -100,7 +100,7 @@
   </style>
 </head>
   <% layout("/layout/boilerplatebuyer") %>
-<body>
+<div class="buyer-dashboard">
 
   <div class="dashboard-container">
     <h1>🌟 <%=buyername%> Dashboard</h1>
@@ -144,5 +144,5 @@
   });
 </script>
 
-</body>
+</div>
 </html>

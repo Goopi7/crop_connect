@@ -1,86 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login - Farmer Portal</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-    }
-    body {
-      background: linear-gradient(135deg, #f0f0f0, #dcdcdc);
-      margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      overflow: hidden;
-    }
-    .container {
-      background: #ffffff;
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      animation: slideIn 1s ease-out;
-      width: 300px;
-      text-align: center;
-    }
-    h2 {
-      margin-bottom: 20px;
-      color: #333;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      background-color: #f9f9f9;
-      transition: 0.3s;
-    }
-    input:focus {
-      border-color: #999;
-      outline: none;
-      background-color: #fff;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #8bc34a;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background 0.3s ease;
-    }
-    button:hover {
-      background: #7cb342;
-    }
-    @keyframes slideIn {
-      from {
-        transform: translateY(30px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h2>Farmer Login</h2>
-    <form method="post" action="/users/loginfarmer">
-      <input type="text" placeholder="Username" name="username" required />
-      <input type="password" placeholder="Password" name="password" required />
-      <button type="submit">Login</button>
-      <p>Do not have an account?</p>
-      <a href="/users/signupfarmer">SignUp</a>
-    </form>
+<% layout('/layout/boilerplate') %>
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <div class="card mt-5">
+        <div class="card-header bg-success text-white text-center">
+          <h4><i class="fas fa-tractor"></i> Farmer Login</h4>
+        </div>
+        <div class="card-body">
+          <%- include('../includes/flash') %>
+
+          <form action="/users/loginfarmer" method="POST">
+            <div class="mb-3">
+              <label for="username" class="form-label">Username</label>
+              <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-success">
+                <i class="fas fa-sign-in-alt"></i> Login as Farmer
+              </button>
+            </div>
+          </form>
+
+          <hr>
+
+          <div class="text-center">
+            <p class="mb-2">Don't have a farmer account?</p>
+            <a href="/users/signupfarmer" class="btn btn-outline-secondary btn-sm">
+              <i class="fas fa-user-plus"></i> Create Farmer Account
+            </a>
+          </div>
+
+          <div class="text-center mt-3">
+            <a href="/" class="text-muted">
+              <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</body>
-</html>
+</div>
+
+<style>
+.card { box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; }
+.card-header { border-bottom: 1px solid rgba(255,255,255,0.2); }
+.btn-success { background: linear-gradient(45deg,#28a745,#1e7e34); border: none; transition: all .3s ease; }
+.btn-success:hover { background: linear-gradient(45deg,#1e7e34,#155d27); transform: translateY(-1px); }
+.form-control:focus { border-color: #28a745; box-shadow: 0 0 0 .2rem rgba(40,167,69,.25); }
+</style>
