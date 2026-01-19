@@ -1,5 +1,5 @@
 # Multi-stage build for production optimization
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
 # Install Python and ML dependencies
 RUN apk add --no-cache \
@@ -17,7 +17,8 @@ COPY package*.json ./
 COPY ml/requirements.txt ./ml/
 
 # Install Node.js dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Use npm install instead of npm ci to avoid lockfile sync issues during Docker builds
+RUN npm install --omit=dev && npm cache clean --force
 
 # Install Python dependencies for ML
 RUN pip3 install --no-cache-dir -r ml/requirements.txt
@@ -26,7 +27,7 @@ RUN pip3 install --no-cache-dir -r ml/requirements.txt
 RUN addgroup -g 1001 -S nodejs && adduser -S cropconnect -u 1001
 
 # Production stage
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 # Install Python runtime
 RUN apk add --no-cache python3 py3-pip
