@@ -9,6 +9,7 @@ import numpy as np
 from datetime import datetime, timedelta
 import random
 import json
+import os
 
 # Crop types and their base prices (per kg)
 CROP_BASE_PRICES = {
@@ -163,8 +164,17 @@ if __name__ == "__main__":
     df['date'] = pd.to_datetime(df['date'])
     df = df.sort_values('date').reset_index(drop=True)
     
+    # Get the directory where this script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    # The data directory is the same as script directory
+    data_dir = script_dir
+    # Ensure the directory exists
+    os.makedirs(data_dir, exist_ok=True)
+    # Create the full path to the CSV file
+    csv_path = os.path.join(data_dir, 'crop_price_data.csv')
+    
     # Save to CSV
-    save_data(df, './ml/data/crop_price_data.csv')
+    save_data(df, csv_path)
     
     # Display sample data
     print("\nSample data:")

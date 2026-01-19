@@ -53,12 +53,15 @@ router.get('/api/farmers/:id', isAdmin, async (req, res) => {
 // Update farmer
 router.put('/api/farmers/:id', isAdmin, hasAdminPermission('manage_users'), async (req, res) => {
     try {
-        const { name, username, email, location } = req.body;
+        const { name, username, email, location, razorpayMeUsername, phone, bankAccount } = req.body;
         const update = {};
         if (name) update.name = name;
         if (username) update.username = username;
         if (email) update.email = email;
         if (location) update.location = location;
+        if (razorpayMeUsername !== undefined) update.razorpayMeUsername = razorpayMeUsername;
+        if (phone !== undefined) update.phone = phone;
+        if (bankAccount !== undefined) update.bankAccount = bankAccount;
         const farmer = await FarmerLogin.findByIdAndUpdate(req.params.id, update, { new: true, runValidators: true });
         if (!farmer) {
             return res.status(404).json({ success: false, message: 'Farmer not found' });

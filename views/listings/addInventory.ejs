@@ -9,8 +9,8 @@
     }
     
     .form-container {
-        max-width: 400px;
-        margin: 80px auto 0 auto; /* Pushes form below navbar */
+        max-width: 500px;
+        margin: 80px auto 0 auto;
         padding: 30px;
         background: white;
         border-radius: 12px;
@@ -23,7 +23,7 @@
         color: #333;
     }
     
-    form input {
+    form input, form textarea {
         width: 100%;
         padding: 12px 15px;
         margin: 10px 0;
@@ -31,9 +31,10 @@
         border-radius: 6px;
         font-size: 16px;
         transition: border-color 0.3s ease;
+        box-sizing: border-box;
     }
     
-    form input:focus {
+    form input:focus, form textarea:focus {
         outline: none;
         border-color: #4CAF50;
     }
@@ -54,17 +55,175 @@
         background-color: #45a049;
     }
     
+    .market-price-info {
+        background: #e3f2fd;
+        border-left: 4px solid #2196F3;
+        padding: 12px;
+        margin: 10px 0;
+        border-radius: 6px;
+        display: none;
+    }
+    
+    .market-price-info.show {
+        display: block;
+    }
+    
+    .market-price-info .price-label {
+        font-weight: 600;
+        color: #1976D2;
+    }
+    
+    .market-price-info .price-value {
+        font-size: 1.2em;
+        color: #0d47a1;
+        margin: 5px 0;
+    }
+    
+    .price-warning {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 12px;
+        margin: 10px 0;
+        border-radius: 6px;
+        display: none;
+    }
+    
+    .price-warning.show {
+        display: block;
+    }
+    
+    .price-warning .warning-text {
+        color: #856404;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+    
+    #priceReason {
+        min-height: 80px;
+        resize: vertical;
+    }
+    
+    .loading {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #4CAF50;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-left: 10px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
 </style>
 
 
 <body>
     <div class="form-container">
-        <form method="post" action="/listings/addInventory">
+        <form method="post" action="/listings/addInventory" id="inventoryForm">
             <h2>Add Inventory</h2>
-            <input name="crop" placeholder="Enter type of crop" type="text" required>
-            <input name="quantity" placeholder="Enter Quantity in Kgs" type="number" required>
-            <input name="price" placeholder="Enter Price per Kg in Rs" type="number" required>
+            <input name="crop" id="cropInput" placeholder="Enter type of crop" type="text" required autocomplete="off">
+            <div class="market-price-info" id="marketPriceInfo">
+                <div class="price-label">Market Price (per kg):</div>
+                <div class="price-value" id="marketPriceValue">₹0</div>
+            </div>
+            <input name="quantity" placeholder="Enter Quantity in Kgs" type="number" min="1" step="0.01" required>
+            <input name="price" id="priceInput" placeholder="Enter Price per Kg in Rs" type="number" min="0" step="0.01" required>
+            <input type="hidden" name="marketPrice" id="marketPriceHidden">
+            <div class="price-warning" id="priceWarning">
+                <div class="warning-text">⚠️ Your price is higher than market price. Please provide a reason:</div>
+            </div>
+            <textarea name="priceReason" id="priceReason" placeholder="Reason for higher price (e.g., organic, premium quality, special variety, etc.)" style="display: none;"></textarea>
             <button type="submit">Submit</button>
         </form>
     </div>
+
+    <script>
+        const cropInput = document.getElementById('cropInput');
+        const priceInput = document.getElementById('priceInput');
+        const marketPriceInfo = document.getElementById('marketPriceInfo');
+        const marketPriceValue = document.getElementById('marketPriceValue');
+        const marketPriceHidden = document.getElementById('marketPriceHidden');
+        const priceWarning = document.getElementById('priceWarning');
+        const priceReason = document.getElementById('priceReason');
+        let currentMarketPrice = null;
+        let fetchTimeout = null;
+
+        // Debounced function to fetch market price
+        cropInput.addEventListener('input', function() {
+            const cropName = this.value.trim().toLowerCase();
+            
+            if (fetchTimeout) {
+                clearTimeout(fetchTimeout);
+            }
+            
+            if (cropName.length < 2) {
+                marketPriceInfo.classList.remove('show');
+                currentMarketPrice = null;
+                return;
+            }
+            
+            fetchTimeout = setTimeout(async () => {
+                try {
+                    marketPriceInfo.innerHTML = '<div class="price-label">Loading market price...</div><div class="loading"></div>';
+                    marketPriceInfo.classList.add('show');
+                    
+                    const response = await fetch(`/api/market-price/${encodeURIComponent(cropName)}`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.marketPrice) {
+                        currentMarketPrice = data.marketPrice;
+                        marketPriceValue.textContent = `₹${currentMarketPrice.toFixed(2)}`;
+                        marketPriceHidden.value = currentMarketPrice;
+                        marketPriceInfo.innerHTML = `
+                            <div class="price-label">Market Price (per kg):</div>
+                            <div class="price-value">₹${currentMarketPrice.toFixed(2)}</div>
+                        `;
+                        checkPrice();
+                    } else {
+                        marketPriceInfo.classList.remove('show');
+                        currentMarketPrice = null;
+                    }
+                } catch (error) {
+                    console.error('Error fetching market price:', error);
+                    marketPriceInfo.classList.remove('show');
+                    currentMarketPrice = null;
+                }
+            }, 500);
+        });
+
+        // Check if price is higher than market price
+        function checkPrice() {
+            const enteredPrice = parseFloat(priceInput.value);
+            
+            if (currentMarketPrice && enteredPrice && enteredPrice > currentMarketPrice) {
+                priceWarning.classList.add('show');
+                priceReason.style.display = 'block';
+                priceReason.required = true;
+            } else {
+                priceWarning.classList.remove('show');
+                priceReason.style.display = 'none';
+                priceReason.required = false;
+            }
+        }
+
+        priceInput.addEventListener('input', checkPrice);
+
+        // Form validation
+        document.getElementById('inventoryForm').addEventListener('submit', function(e) {
+            const enteredPrice = parseFloat(priceInput.value);
+            const reasonValue = priceReason.value.trim();
+            
+            if (currentMarketPrice && enteredPrice && enteredPrice > currentMarketPrice && !reasonValue) {
+                e.preventDefault();
+                alert('Please provide a reason for pricing higher than market price.');
+                priceReason.focus();
+                return false;
+            }
+        });
+    </script>
 </body>

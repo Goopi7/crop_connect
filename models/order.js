@@ -19,8 +19,9 @@ const orderSchema = new Schema({
   currency: { type: String, default: 'INR' },
   status: { type: String, enum: ['created','paid','shipped','completed','cancelled'], default: 'created' },
   payment: {
-    method: { type: String, enum: ['COD','online'], default: 'COD' },
+    method: { type: String, enum: ['COD','online','upi'], default: 'COD' },
     txnId: { type: String },
+    status: { type: String, enum: ['pending','success','failed'], default: 'pending' },
     meta: { type: Schema.Types.Mixed }
   },
   shipping: {

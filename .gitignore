@@ -69,3 +69,9 @@ Thumbs.db
 .temp/
 
 
+logs/
+node_modules/
+.env
+.DS_Store
+ml/models/*.pkl (or use Git LFS for large files)
+ml/data/*.csv (or use Git LFS for large data files)

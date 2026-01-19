@@ -22,8 +22,15 @@ module.exports.inventorySchema = Joi.object({
     "number.base": "Price must be a number",
     "number.positive": "Price must be positive",
     "any.required": "Price is required"
+  }),
+  marketPrice: Joi.number().positive().optional().allow('').messages({
+    "number.base": "Market price must be a number",
+    "number.positive": "Market price must be positive"
+  }),
+  priceReason: Joi.string().trim().optional().allow('').max(500).messages({
+    "string.max": "Price reason must be less than 500 characters"
   })
-});
+}).unknown(false); // Don't allow unknown fields
 
 
 

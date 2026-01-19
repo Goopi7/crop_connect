@@ -14,6 +14,20 @@ let farmerSchema=new Schema({
         type:String,
         required:true
     },
+    razorpayMeUsername:{
+        type:String,
+        trim:true,
+        default:null
+    },
+    phone:{
+        type:String,
+        trim:true
+    },
+    bankAccount:{
+        accountNumber:String,
+        ifscCode:String,
+        bankName:String
+    }
 });
 farmerSchema.plugin(passportLocalMongoose);
 module.exports=mongoose.model("FarmerLogin",farmerSchema);

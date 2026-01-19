@@ -57,7 +57,7 @@ main().then((res) => {
 async function main() {
     await mongoose.connect(mongoUri, { dbName: defaultDbName });
     const usedDbName = mongoose.connection.name;
-    return `✅ Connected to MongoDB at ${mongoUri} (db: ${usedDbName})`;
+    return `✅ Connected to MongoDB Database (db: ${usedDbName})`;
 }
 
 //schemas
@@ -273,6 +273,31 @@ app.use(cropsRoutes);
 app.use('/admin', adminRoutes);
 app.use(chatbotRoutes);
 app.use('/buyer/api', buyerOrdersRoutes);
+
+// Buyer payment page route (after middleware setup)
+app.get('/buyer/payment/:id', isLoggedIn, isBuyer, async (req, res) => {
+    try {
+        const Order = require('./models/order');
+        const order = await Order.findById(req.params.id).populate('farmer');
+        if (!order) {
+            req.flash('error', 'Order not found');
+            return res.redirect('/dashboard/buyer');
+        }
+        if (String(order.buyer) !== String(req.user._id)) {
+            req.flash('error', 'Unauthorized access');
+            return res.redirect('/dashboard/buyer');
+        }
+        if (order.status !== 'created') {
+            req.flash('info', `Order is already ${order.status}`);
+            return res.redirect('/dashboard/buyer');
+        }
+        res.render('buyer/payment', { order });
+    } catch (err) {
+        console.error('Payment page error:', err);
+        req.flash('error', 'Failed to load payment page');
+        res.redirect('/dashboard/buyer');
+    }
+});
 
 // DEV ONLY: create a dummy admin for quick testing
 if (process.env.NODE_ENV !== 'production') {
@@ -727,10 +752,48 @@ app.post("/users/loginfarmer", redirectPath, passport.authenticate("farmer-local
 app.get("/listings/addInventory",isFarmer, (req, res) => {
     res.render("listings/addInventory")
 });
+
+// Import Google Price Service
+const googlePriceService = require('./services/googlePriceService');
+
+// API endpoint to get market price for a crop
+app.get("/api/market-price/:cropName", isFarmer, async (req, res) => {
+    try {
+        const cropName = req.params.cropName.toLowerCase();
+        const location = req.query.location || 'India'; // Optional location parameter
+        
+        // Use Google Price Service to fetch real-time prices
+        const marketPrice = await googlePriceService.getMarketPrice(cropName, location);
+        
+        res.json({ 
+            success: true, 
+            marketPrice, 
+            cropName,
+            source: 'google',
+            timestamp: new Date().toISOString()
+        });
+    } catch (err) {
+        console.error("Error fetching market price:", err);
+        // Return fallback price on error
+        const basePrices = {
+            wheat: 25, rice: 35, corn: 20, tomato: 45,
+            potato: 15, onion: 30, soybean: 55, cotton: 80,
+            maize: 20, sugarcane: 35, groundnut: 60, mustard: 50
+        };
+        const cropName = req.params.cropName.toLowerCase();
+        res.json({ 
+            success: true, 
+            marketPrice: basePrices[cropName] || 30, 
+            cropName,
+            source: 'fallback',
+            timestamp: new Date().toISOString()
+        });
+    }
+});
 //add inventory post
 
 app.post("/listings/addInventory",validateInventory, isFarmer,async (req, res) => {
-    let { crop, price, quantity } = req.body;
+    let { crop, price, quantity, priceReason, marketPrice } = req.body;
     try {
         const farmerId = req.user._id;
         if (!crop || !price || !quantity) {
@@ -738,31 +801,51 @@ app.post("/listings/addInventory",validateInventory, isFarmer,async (req, res) =
             return res.redirect("/listings/addInventory");
         }
         crop = crop.toLowerCase();
+        const priceNum = Number(price);
+        const marketPriceNum = marketPrice ? Number(marketPrice) : null;
+        
+        // If price is higher than market price and no reason provided, require reason
+        if (marketPriceNum && priceNum > marketPriceNum && !priceReason) {
+            req.flash("error", "Please provide a reason for pricing higher than market price.");
+            return res.redirect("/listings/addInventory");
+        }
+        
         let available = await AvailableInventory.findOne({ farmer: farmerId });
+        const inventoryItem = {
+            crop: crop,
+            price: priceNum,
+            quantity: Number(quantity)
+        };
+        
+        // Add market price and reason if provided
+        if (marketPriceNum) {
+            inventoryItem.marketPrice = marketPriceNum;
+        }
+        if (priceReason) {
+            inventoryItem.priceReason = priceReason.trim();
+        }
+        
         if (!available) {
             available = new AvailableInventory({
                 farmer: farmerId,
-                inventory: [{ crop: crop, price, quantity }]
+                inventory: [inventoryItem]
             });
         } else {
             let cropFound = false;
             for (let item of available.inventory) {
-                if (item.crop === crop) {
+                if (item.crop === crop && item.price === priceNum) {
                     item.quantity += Number(quantity);
                     cropFound = true;
                     break;
                 }
             }
             if (!cropFound) {
-                available.inventory.push({
-                    crop: crop,
-                    price,
-                    quantity
-                });
+                available.inventory.push(inventoryItem);
             }
         }
 
         await available.save();
+        req.flash("success", "Inventory added successfully!");
         res.redirect("/listings/farmers");
 
     } catch (err) {
@@ -822,6 +905,33 @@ app.get("/listings/delete/:crop",isFarmer, async (req, res) => {
     }
 
 });
+
+// Update farmer's Razorpay.me account (farmer can update their own)
+app.put("/farmer/api/payment-account", isFarmer, async (req, res) => {
+    try {
+        const farmerId = req.user._id;
+        const { razorpayMeUsername, phone, bankAccount } = req.body;
+        
+        const update = {};
+        if (razorpayMeUsername !== undefined && razorpayMeUsername.trim()) {
+            update.razorpayMeUsername = razorpayMeUsername.trim().replace('@', ''); // Remove @ if present
+        }
+        if (phone !== undefined) update.phone = phone;
+        if (bankAccount !== undefined) update.bankAccount = bankAccount;
+        
+        const farmer = await FarmerLogin.findByIdAndUpdate(farmerId, update, { new: true, runValidators: true });
+        if (!farmer) {
+            return res.status(404).json({ success: false, message: 'Farmer not found' });
+        }
+        
+        req.flash("success", "Payment account updated successfully");
+        res.json({ success: true, farmer });
+    } catch (err) {
+        console.error('Error updating farmer payment account:', err);
+        res.status(500).json({ success: false, message: 'Failed to update payment account', details: err.message });
+    }
+});
+
 //login buyer
 app.get("/users/loginbuyer",async (req, res) => {
     res.render("users/loginbuyer.ejs");
@@ -921,7 +1031,9 @@ app.post("/request/send",isLoggedIn,isFarmer, async (req, res) => {
         const inventorySent = inventorysent.inventory.map(crop => ({
             crop: crop.crop,
             quantity: crop.quantity,
-            price: crop.price
+            price: crop.price,
+            marketPrice: crop.marketPrice,
+            priceReason: crop.priceReason
         }));
         console.log(inventorySent);
         if (!inventorysent || inventorysent.inventory.length === 0) {
@@ -982,6 +1094,7 @@ app.get("/request/view/:id",isLoggedIn,isBuyer,async (req,res)=>{
 //accept button
 app.post("/accept-inventory/:id",isLoggedIn,isBuyer,async (req,res)=>{
     try{
+        const Order = require('./models/order');
         let requestId=req.params.id;
         let request=await Request.findById(requestId).populate("farmer");
         let crop=req.body.crop;
@@ -1019,50 +1132,51 @@ app.post("/accept-inventory/:id",isLoggedIn,isBuyer,async (req,res)=>{
             order:"pending"
         });
         
-        let inventorySold=await SoldInventory.findOne({farmer:farmerId});
-        if(!inventorySold){
-             inventorySold=new SoldInventory({
-                farmer:farmerId,
-                inventory: [...inventoryaccepted]
-            });
-        }
-        else{
-            for (let item of request.inventoryaccepted) {
-                const existing = inventorySold.inventory.find(inv =>
-                    inv.crop === item.crop && inv.price === item.price
-                );
-
-                if (existing) {
-                    existing.quantity += item.quantity;
-                } else {
-                    inventorySold.inventory.push(item);
-                }
-            }
-        }
-        await inventorySold.save();
-        let available=await AvailableInventory.findOne({farmer:farmerId});
-        if(available){
-            for (let item of request.inventoryaccepted) {
-                const existing = available.inventory.find(inv =>
-                    inv.crop === item.crop && inv.price === item.price
-                );
-            if (existing) {
-                existing.quantity -= item.quantity;
-                    // Remove the item if quantity becomes 0
-                    if (existing.quantity <= 0) {
-                        available.inventory = available.inventory.filter(inv =>
-                            !(inv.crop === item.crop && inv.price === item.price)
-                        );
-                    }
-                }
-                await available.save();
-            }
-        }
+        // Create Order for payment processing
+        const items = inventoryaccepted.map(item => ({
+            crop: item.crop,
+            quantity: item.quantity,
+            unitPrice: item.price,
+            total: item.quantity * item.price
+        }));
         
-        req.flash("success","Your Purchase is done Successfully");
-        res.redirect("/listings/buyer");
+        const taxRate = 0.05;
+        const subtotal = totalprice;
+        const taxAmount = +(subtotal * taxRate).toFixed(2);
+        const grandTotal = +(subtotal + taxAmount).toFixed(2);
+        
+        const buyer = req.user;
+        const shipping = {
+            name: buyer.name || buyer.username,
+            phone: buyer.phone || '',
+            address: buyer.address || '',
+            pincode: buyer.pincode || ''
+        };
+        
+        const order = await Order.create({
+            buyer: buyer._id,
+            farmer: farmerId,
+            items: items,
+            subtotal: subtotal,
+            taxRate: taxRate,
+            taxAmount: taxAmount,
+            grandTotal: grandTotal,
+            payment: {
+                method: 'COD',
+                status: 'pending'
+            },
+            shipping: shipping,
+            status: 'created'
+        });
+        
+        // Don't update inventory yet - wait for payment
+        // Inventory will be updated after payment is completed
+        
+        req.flash("success","Order created! Please proceed to payment.");
+        res.redirect(`/buyer/payment/${order._id}`);
     }
     catch(err){
+        console.error("Error accepting inventory:", err);
         req.flash("error",err.message);
         res.redirect("/listings/buyer");
     }

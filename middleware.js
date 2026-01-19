@@ -11,7 +11,9 @@ module.exports.isFarmer=(req, res, next)=> {
     res.redirect("/");
 }
 module.exports.isLoggedIn=(req, res, next) =>{
-    if (!req.isAuthenticated()) {
+    // Check if user is authenticated by checking req.user (set by Passport)
+    // Also check req.isAuthenticated if available (for compatibility)
+    if (!req.user && (!req.isAuthenticated || !req.isAuthenticated())) {
         req.flash("error", "You must be logged in first!");
         return res.redirect("/");
     }

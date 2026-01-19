@@ -461,18 +461,25 @@
         const username = prompt('Username', farmer.username || '');
         const email = prompt('Email', farmer.email || '');
         const location = prompt('Location', farmer.location || '');
+        const razorpayMeUsername = prompt('Razorpay.me Username (without @)', (farmer.razorpayMeUsername || '').replace('@', ''));
+        const phone = prompt('Phone', farmer.phone || '');
+        
         if (name && username && email && location) {
+          const updateData = { name, username, email, location };
+          if (razorpayMeUsername) updateData.razorpayMeUsername = razorpayMeUsername;
+          if (phone) updateData.phone = phone;
+          
           return fetch(`/admin/api/farmers/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, username, email, location })
+            body: JSON.stringify(updateData)
           });
         }
       })
       .then(res => res ? res.json() : null)
       .then(data => {
         if (data && data.success) {
-          alert('Farmer updated');
+          alert('Farmer updated successfully');
           loadFarmers();
         } else if (data) {
           alert(data.message || 'Failed to update farmer');

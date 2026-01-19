@@ -121,6 +121,8 @@
                     <th>Product</th>
                     <th>Quantity</th>
                     <th>Price (per unit)</th>
+                    <th>Market Price</th>
+                    <th>Price Reason</th>
                 </tr>
             </thead>
             <tbody>
@@ -129,6 +131,16 @@
                         <td><%= item.crop %></td>
                         <td><%= item.quantity %></td>
                         <td>₹<%= item.price %> /kg</td>
+                        <td><%= item.marketPrice ? '₹' + item.marketPrice.toFixed(2) : 'N/A' %></td>
+                        <td>
+                            <% if (item.priceReason) { %>
+                                <span style="color: #856404; font-style: italic; font-size: 0.9em;">
+                                    💡 <%= item.priceReason %>
+                                </span>
+                            <% } else { %>
+                                <span style="color: #6c757d;">-</span>
+                            <% } %>
+                        </td>
                     </tr>
                 <% }) %>
             </tbody>

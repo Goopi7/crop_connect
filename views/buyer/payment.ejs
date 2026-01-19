@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - Order #<%= order._id %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        .payment-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .payment-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .payment-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        .payment-body {
+            padding: 2rem;
+        }
+        .order-summary {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .order-summary h4 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .summary-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #667eea;
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+        }
+        .payment-methods {
+            margin-bottom: 2rem;
+        }
+        .payment-method-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .payment-method-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        .payment-method-card.active {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .payment-method-card h5 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+        .payment-method-card p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .upi-qr-container {
+            text-align: center;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            display: none;
+        }
+        .upi-qr-container.active {
+            display: block;
+        }
+        .qr-code {
+            width: 250px;
+            height: 250px;
+            margin: 1rem auto;
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .qr-code::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, #000 0px, #000 20px, transparent 20px, transparent 40px),
+                repeating-linear-gradient(90deg, #000 0px, #000 20px, transparent 20px, transparent 40px);
+            background-size: 100% 100%;
+            opacity: 0.3;
+        }
+        .qr-code::after {
+            content: 'UPI';
+            position: absolute;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            z-index: 1;
+        }
+        .upi-details {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+        }
+        .upi-id {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0.5rem 0;
+        }
+        .upi-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin: 0.5rem 0;
+        }
+        .btn-pay {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-pay:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-pay:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .payment-status {
+            text-align: center;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+        .payment-status.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .payment-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        .cod-info {
+            padding: 1.5rem;
+            background: #fff3cd;
+            border-radius: 10px;
+            border-left: 4px solid #ffc107;
+            display: none;
+        }
+        .cod-info.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="payment-container">
+            <div class="payment-header">
+                <h2>💳 Complete Your Payment</h2>
+                <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Order #<%= order._id.toString().substring(0, 8) %></p>
+            </div>
+            
+            <div class="payment-body">
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <h4>📦 Order Summary</h4>
+                    <% order.items.forEach(item => { %>
+                    <div class="summary-row">
+                        <span><%= item.crop %> (<%= item.quantity %> kg)</span>
+                        <span>₹<%= item.total.toFixed(2) %></span>
+                    </div>
+                    <% }) %>
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>₹<%= order.subtotal.toFixed(2) %></span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Tax (5%)</span>
+                        <span>₹<%= order.taxAmount.toFixed(2) %></span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Total Amount</span>
+                        <span>₹<%= order.grandTotal.toFixed(2) %></span>
+                    </div>
+                </div>
+
+                <!-- Payment Methods -->
+                <div class="payment-methods">
+                    <h4 style="margin-bottom: 1rem;">Choose Payment Method</h4>
+                    
+                    <!-- UPI Payment -->
+                    <div class="payment-method-card" data-method="upi" onclick="selectPaymentMethod('upi')">
+                        <h5>📱 UPI Payment</h5>
+                        <p>Pay using UPI apps (PhonePe, Google Pay, Paytm, etc.)</p>
+                    </div>
+
+                    <!-- COD Payment -->
+                    <div class="payment-method-card" data-method="cod" onclick="selectPaymentMethod('cod')">
+                        <h5>💰 Cash on Delivery</h5>
+                        <p>Pay when you receive the order</p>
+                    </div>
+                </div>
+
+                <!-- UPI QR Code -->
+                <div class="upi-qr-container" id="upiQrContainer">
+                    <h5 style="margin-bottom: 1rem;">Scan QR Code to Pay</h5>
+                    <div class="qr-code" id="qrCode"></div>
+                    <div class="upi-details">
+                        <div class="upi-id">UPI ID: <%= (order.farmer && order.farmer.razorpayMeUsername) ? order.farmer.razorpayMeUsername + '@razorpay' : 'farmer@upi' %></div>
+                        <div class="upi-amount">₹<%= order.grandTotal.toFixed(2) %></div>
+                        <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">
+                            Scan with any UPI app to complete payment
+                        </p>
+                    </div>
+                </div>
+
+                <!-- COD Info -->
+                <div class="cod-info" id="codInfo">
+                    <h5 style="margin: 0 0 0.5rem 0;">💰 Cash on Delivery</h5>
+                    <p style="margin: 0;">You will pay ₹<%= order.grandTotal.toFixed(2) %> when you receive your order.</p>
+                </div>
+
+                <!-- Payment Status -->
+                <div class="payment-status" id="paymentStatus"></div>
+
+                <!-- Pay Button -->
+                <button class="btn-pay" id="payButton" onclick="processPayment()" disabled>
+                    Complete Payment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedMethod = null;
+        const orderId = '<%= order._id %>';
+
+        function selectPaymentMethod(method) {
+            selectedMethod = method;
+            
+            // Update UI
+            document.querySelectorAll('.payment-method-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`[data-method="${method}"]`).classList.add('active');
+            
+            // Show/hide payment options
+            const upiContainer = document.getElementById('upiQrContainer');
+            const codInfo = document.getElementById('codInfo');
+            
+            if (method === 'upi') {
+                upiContainer.classList.add('active');
+                codInfo.classList.remove('active');
+            } else {
+                upiContainer.classList.remove('active');
+                codInfo.classList.add('active');
+            }
+            
+            // Enable pay button
+            document.getElementById('payButton').disabled = false;
+        }
+
+        async function processPayment() {
+            if (!selectedMethod) {
+                alert('Please select a payment method');
+                return;
+            }
+
+            const payButton = document.getElementById('payButton');
+            const statusDiv = document.getElementById('paymentStatus');
+            
+            payButton.disabled = true;
+            payButton.textContent = 'Processing...';
+            statusDiv.className = 'payment-status';
+            statusDiv.textContent = '';
+
+            try {
+                const response = await fetch(`/buyer/api/orders/${orderId}/pay`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        paymentMethod: selectedMethod,
+                        // For UPI, we'll simulate payment success
+                        ...(selectedMethod === 'upi' ? {
+                            razorpay_order_id: 'order_' + Date.now(),
+                            razorpay_payment_id: 'pay_' + Date.now(),
+                            razorpay_signature: 'mock_signature_' + Date.now()
+                        } : {})
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    statusDiv.className = 'payment-status success';
+                    statusDiv.innerHTML = `
+                        <h5>✅ Payment Successful!</h5>
+                        <p>Transaction ID: ${result.transactionId || 'N/A'}</p>
+                        <p>Your order has been confirmed. You will receive your items soon.</p>
+                        <a href="/dashboard/buyer" style="color: #155724; text-decoration: underline;">View Orders</a>
+                    `;
+                    payButton.disabled = true;
+                    payButton.textContent = 'Payment Successful';
+                    
+                    // Reload order data to show updated status
+                    setTimeout(async () => {
+                        try {
+                            const statusResponse = await fetch(`/buyer/api/orders/${orderId}/payment-status`);
+                            const statusData = await statusResponse.json();
+                            if (statusData.status === 'paid') {
+                                // Update order summary to show paid status
+                                const orderSummary = document.querySelector('.order-summary');
+                                if (orderSummary) {
+                                    orderSummary.innerHTML += `
+                                        <div style="margin-top: 1rem; padding: 1rem; background: #d4edda; border-radius: 8px; color: #155724;">
+                                            <strong>✅ Payment Status:</strong> Paid<br>
+                                            <strong>Transaction ID:</strong> ${result.transactionId || 'N/A'}
+                                        </div>
+                                    `;
+                                }
+                            }
+                        } catch (err) {
+                            console.error('Error fetching order status:', err);
+                        }
+                    }, 1000);
+                } else {
+                    statusDiv.className = 'payment-status error';
+                    statusDiv.textContent = '❌ ' + (result.error || 'Payment failed. Please try again.');
+                    payButton.disabled = false;
+                    payButton.textContent = 'Complete Payment';
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                statusDiv.className = 'payment-status error';
+                statusDiv.textContent = '❌ An error occurred. Please try again.';
+                payButton.disabled = false;
+                payButton.textContent = 'Complete Payment';
+            }
+        }
+
+        // Generate QR code pattern (dummy)
+        function generateQRCode() {
+            const qrCode = document.getElementById('qrCode');
+            // Create a simple pattern
+            const canvas = document.createElement('canvas');
+            canvas.width = 250;
+            canvas.height = 250;
+            const ctx = canvas.getContext('2d');
+            
+            // Draw QR-like pattern
+            ctx.fillStyle = '#000';
+            for (let i = 0; i < 250; i += 10) {
+                for (let j = 0; j < 250; j += 10) {
+                    if (Math.random() > 0.5) {
+                        ctx.fillRect(i, j, 8, 8);
+                    }
+                }
+            }
+            
+            qrCode.appendChild(canvas);
+        }
+
+        // Initialize QR code on page load
+        window.addEventListener('DOMContentLoaded', generateQRCode);
+    </script>
+</body>
+</html>
+

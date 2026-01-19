@@ -12,6 +12,13 @@ const inventoryItemSchema = new Schema({
     },
     price:{
         type:Number
+    },
+    priceReason: {
+      type: String,
+      trim: true
+    },
+    marketPrice: {
+      type: Number
     }
   });
 

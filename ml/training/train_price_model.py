@@ -208,8 +208,14 @@ class CropPricePredictionModel:
         
         return feature_importance_df
     
-    def save_model(self, model_path='./ml/models/'):
+    def save_model(self, model_path=None):
         """Save the trained model and preprocessing objects"""
+        if model_path is None:
+            # Use path relative to script location
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            ml_dir = os.path.dirname(script_dir)
+            model_path = os.path.join(ml_dir, 'models')
+        
         os.makedirs(model_path, exist_ok=True)
         
         # Save model
@@ -244,8 +250,11 @@ def main():
     # Initialize model
     model = CropPricePredictionModel()
     
-    # Load data
-    data_path = './ml/data/crop_price_data.csv'
+    # Load data - use path relative to script location
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Go up one level from training/ to ml/, then into data/
+    ml_dir = os.path.dirname(script_dir)
+    data_path = os.path.join(ml_dir, 'data', 'crop_price_data.csv')
     df = model.load_data(data_path)
     
     if df is None:
@@ -295,7 +304,10 @@ def main():
     print(f"  MAE:  {metrics['mae']:.2f} INR/kg")
     print(f"  RMSE: {metrics['rmse']:.2f} INR/kg")
     print(f"  R²:   {metrics['r2']:.4f}")
-    print(f"\nModel saved to: ./ml/models/")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    ml_dir = os.path.dirname(script_dir)
+    models_path = os.path.join(ml_dir, 'models')
+    print(f"\nModel saved to: {models_path}")
     print("You can now use the model for predictions via the API endpoint.")
     print("="*60)
 
